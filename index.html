@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Integrados — Acceso</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    --verde: #2DB82D; --verde-dark: #1E8F1E; --verde-light: #E8F8E8;
+    --cyan: #00AADD; --cyan-light: #E0F6FF;
+    --navy: #0A1F5C; --navy-mid: #0D2B7A;
+  }
+  body { font-family: "DM Sans", 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; }
+
+  .fade-in  { animation: fadeIn .4s ease both; }
+  .slide-up { animation: slideUp .3s ease both; }
+
+  @keyframes fadeIn  { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: none } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px) } to { opacity: 1; transform: none } }
+
+  input:focus, select:focus { outline: none; border-color: #2DB82D !important; box-shadow: 0 0 0 3px rgba(45,184,45,.12) !important; }
+
+  /* Custom checkbox */
+  .sede-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px; border-radius: 99px; cursor: pointer;
+    border: 1.5px solid #E2E8F0; font-size: 12px; font-weight: 500;
+    color: #2D6E2D; background: white; transition: all .15s; user-select: none;
+  }
+  .sede-chip:hover { border-color: #2DB82D; color: #1E8F1E; background: #E8F8E8; }
+  .sede-chip.selected { border-color: #2DB82D; color: #1E8F1E; background: #E8F8E8; font-weight: 600; }
+  .sede-chip input { display: none; }
+
+  /* Tipo registro cards */
+  .tipo-card {
+    border: 2px solid #E2E8F0; border-radius: 14px; padding: 14px 16px;
+    cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 12px;
+    background: white; user-select: none; flex: 1;
+  }
+  .tipo-card:hover { border-color: #2DB82D; background: #F2FBF2; }
+  .tipo-card.selected { border-color: #2DB82D; background: #E8F8E8; }
+  .tipo-card input { display: none; }
+  .tipo-card .icon-wrap {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: all .2s;
+  }
+  .tipo-card.selected .icon-wrap { background: white; box-shadow: 0 2px 8px rgba(12,110,222,.15); }
+
+  .inp {
+    width: 100%; border: 1.5px solid #E2E8F0; border-radius: 11px;
+    padding: 10px 14px; font-size: 13.5px; color: #1E293B;
+    transition: all .15s; font-family: inherit; background: white;
+  }
+  .inp:focus { border-color: #0C6EDE; box-shadow: 0 0 0 3px rgba(12,110,222,.1); }
+  select.inp { cursor: pointer; }
+
+  .btn-primary {
+    width: 100%; background: linear-gradient(135deg, #1E8F1E, #2DB82D); color: white; border: none;
+    border-radius: 12px; padding: 11px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all .15s; font-family: inherit; letter-spacing: .01em;
+    box-shadow: 0 4px 14px rgba(45,184,45,.3);
+  }
+  .btn-primary:hover { background: linear-gradient(135deg, #166616, #1E8F1E); }
+  .btn-primary:active { transform: scale(.98); }
+
+  .btn-ok {
+    width: 100%; background: linear-gradient(135deg, #1E8F1E, #2DB82D); color: white; border: none;
+    border-radius: 12px; padding: 11px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all .15s; font-family: inherit;
+    box-shadow: 0 3px 10px rgba(45,184,45,.25);
+  }
+  .btn-ok:hover { background: linear-gradient(135deg, #166616, #1E8F1E); }
+  .btn-ok:active { transform: scale(.98); }
+
+  .lbl {
+    display: block; font-size: 11px; font-weight: 600; color: #64748B;
+    margin-bottom: 6px; text-transform: uppercase; letter-spacing: .07em;
+  }
+
+  /* Step indicator */
+  .step-dot {
+    width: 8px; height: 8px; border-radius: 99px; background: #E2E8F0;
+    transition: all .2s;
+  }
+  .step-dot.active { background: #0C6EDE; width: 22px; }
+  .step-dot.done   { background: #16A871; }
+
+  /* Alerta */
+  .alerta {
+    display: none; border-radius: 10px; padding: 11px 14px;
+    font-size: 13px; margin-bottom: 14px; border: 1.5px solid transparent;
+  }
+  .alerta.error   { background: #FCEBEB; color: #B91C1C; border-color: #FECACA; display: block; }
+  .alerta.success { background: #EAF3DE; color: #166534; border-color: #BBF7D0; display: block; }
+  .alerta.warn    { background: #FAEEDA; color: #92400E; border-color: #FDE68A; display: block; }
+
+  /* Password strength */
+  .pass-bar { height: 4px; border-radius: 99px; transition: all .3s; background: #E2E8F0; }
+  .pass-bar.weak   { background: #E24B4A; width: 33%; }
+  .pass-bar.medium { background: #BA7517; width: 66%; }
+  .pass-bar.strong { background: #16A871; width: 100%; }
+
+  /* Código de verificación */
+  .codigo-input {
+    width: 44px; height: 52px; text-align: center; font-size: 22px; font-weight: 700;
+    border: 1.5px solid #E2E8F0; border-radius: 10px; font-family: inherit; color: #0F172A;
+  }
+  .codigo-input:focus { outline: none; border-color: #0C6EDE; box-shadow: 0 0 0 3px rgba(12,110,222,.1); }
+
+  /* Scrollbar */
+  .sedes-grid::-webkit-scrollbar { width: 4px; }
+  .sedes-grid::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 99px; }
+
+  /* Permisos chips */
+  .perm-chip {
+    display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px;
+    border-radius: 99px; cursor: pointer; border: 1.5px solid #E2E8F0;
+    font-size: 11.5px; font-weight: 500; color: #64748B; background: white;
+    transition: all .15s; user-select: none;
+  }
+  .perm-chip input { display: none; }
+  .perm-chip:hover   { border-color: #7C3AED; color: #7C3AED; background: #EDE9FE; }
+  .perm-chip.selected{ border-color: #7C3AED; color: #5B21B6; background: #EDE9FE; font-weight: 600; }
+
+  /* ── Responsive index ── */
+
+  /* Móvil pequeño: card full screen */
+  @media(max-width:500px){
+    body { padding: 0 !important; }
+    #mainCard {
+      border-radius: 0 !important;
+      min-height: 100dvh !important;
+      box-shadow: none !important;
+      max-width: 100% !important;
+    }
+    #contenido { padding: 20px 16px !important; }
+    .tipo-card { padding: 11px 12px; gap: 10px; }
+    .tipo-card .icon-wrap { width: 34px !important; height: 34px !important; }
+    .sede-chip { padding: 4px 9px; font-size: 11px; }
+    .sedes-grid { max-height: 100px !important; }
+    .btn-primary, .btn-ok { padding: 12px; }
+    /* Grids de nombre/apellido en columna */
+    [style*="grid-template-columns:1fr 1fr"]{
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 10px !important;
+    }
+  }
+
+  /* Móvil mediano: card con bordes redondeados */
+  @media(min-width:501px) and (max-width:640px){
+    body { padding: 12px !important; align-items: flex-start !important; padding-top: 24px !important; }
+    #mainCard { border-radius: 20px !important; }
+    #contenido { padding: 22px 18px !important; }
+  }
+
+  /* Muy pequeño */
+  @media(max-width:360px){
+    #contenido { padding: 16px 14px !important; }
+    .tipo-card { flex-direction: column; text-align: center; gap: 8px; }
+    .tipo-card .icon-wrap { margin: 0 auto; }
+    h1 { font-size: 18px !important; }
+  }
+</style>
+<link rel="stylesheet" href="css/tailwind.css?v=1">
+</head>
+<body style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0A1F5C 0%,#0D2B7A 40%,#0A3A2A 100%);padding:16px;">
+
+<!-- ═══════════════ CARD PRINCIPAL ═══════════════ -->
+<div id="mainCard" style="background:white;border-radius:24px;box-shadow:0 40px 80px rgba(0,0,0,.4);width:100%;max-width:440px;overflow:hidden;" class="fade-in">
+
+  <!-- Header con logo -->
+  <div style="background: linear-gradient(135deg, #0A1F5C 0%, #0D2B7A 60%, #0A3A2A 100%); padding: 24px 28px 20px; position:relative; overflow:hidden;">
+    <div style="display:flex;align-items:center;gap:11px;">
+      <img src="https://tse2.mm.bing.net/th/id/OIP.A3CgmcIudhbFf20-JYMyrQHaHa?r=0&amp;rs=1&amp;pid=ImgDetMain&amp;o=7&amp;rm=3" style="width:46px;height:46px;object-fit:contain;border-radius:10px;filter:drop-shadow(0 4px 12px rgba(0,170,221,.5));" alt="Integrados S&amp;S">
+      <div>
+        <div style="font-family:'Syne','Segoe UI',Roboto,Arial,sans-serif;font-weight:700;font-size:16px;line-height:1.15;color:white;letter-spacing:-.01em;">Integrados S&S</div>
+        <div style="font-size:11px;color:#00AADD;text-transform:uppercase;letter-spacing:.15em;margin-top:1px;">Sistema de Inventario</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenido dinámico -->
+  <div id="contenido" style="padding:24px 20px;">
+
+    <!-- ══ VISTA: LOGIN ══ -->
+    <div id="viewLogin">
+      <h1 style="font-family:Syne,sans-serif;font-weight:700;font-size:20px;color:#0F172A;margin:0 0 4px;">Iniciar sesión</h1>
+      <p style="font-size:13px;color:#94A3B8;margin:0 0 22px;">Accede a tu panel de gestión</p>
+
+      <div id="loginAlerta" class="alerta"></div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div>
+          <label class="lbl">Usuario</label>
+          <input id="loginUsuario" class="inp" placeholder="Tu nombre de usuario" autocomplete="username">
+        </div>
+        <div>
+          <label class="lbl">Contraseña</label>
+          <div style="position:relative;">
+            <input id="loginPass" type="password" class="inp" placeholder="••••••••" autocomplete="current-password" style="padding-right:44px;" onkeydown="if(event.key==='Enter')login()">
+            <button onclick="togglePass('loginPass','eyeLogin')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94A3B8;padding:4px;" id="eyeLogin">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="login()" class="btn-primary" style="margin-top:20px;">Entrar al sistema</button>
+
+      <div style="text-align:center;margin-top:14px;">
+        <button onclick="irAOlvidePass()" style="font-size:12px;color:#94A3B8;background:none;border:none;cursor:pointer;font-family:inherit;">¿Olvidaste tu contraseña?</button>
+      </div>
+
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid #F1F5F9;text-align:center;">
+        <span style="font-size:13px;color:#94A3B8;">¿Nuevo en el sistema? </span>
+        <button onclick="irARegistro()" style="font-size:13px;color:#2DB82D;background:none;border:none;cursor:pointer;font-weight:600;font-family:inherit;">Solicitar acceso →</button>
+      </div>
+    </div>
+
+    <!-- ══ VISTA: ELEGIR TIPO DE CUENTA ══ -->
+    <div id="viewTipoRegistro" style="display:none;">
+      <button onclick="irALogin()" style="display:flex;align-items:center;gap:5px;font-size:12px;color:#94A3B8;background:none;border:none;cursor:pointer;font-family:inherit;margin-bottom:18px;padding:0;">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M15 19l-7-7 7-7"/></svg>
+        Volver al login
+      </button>
+      <h1 style="font-family:Syne,sans-serif;font-weight:700;font-size:20px;color:#0F172A;margin:0 0 4px;">Solicitar acceso</h1>
+      <p style="font-size:13px;color:#94A3B8;margin:0 0 24px;">Selecciona el tipo de cuenta que necesitas</p>
+
+      <div style="display:flex;flex-direction:column;gap:10px;">
+
+        <!-- Municipio -->
+        <label class="tipo-card" id="cardMunicipio" onclick="seleccionarTipo('municipio')">
+          <input type="radio" name="tipoReg" value="municipio">
+          <div class="icon-wrap" style="background:#E6F1FB;">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#0C6EDE" stroke-width="2">
+              <path stroke-linecap="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:14px;color:#0F172A;">Sede / Municipio</div>
+            <div style="font-size:12px;color:#94A3B8;margin-top:2px;">Acceso para gestión de inventario de una sede</div>
+          </div>
+        </label>
+
+        <!-- Técnico -->
+        <label class="tipo-card" id="cardTecnico" onclick="seleccionarTipo('tecnico')">
+          <input type="radio" name="tipoReg" value="tecnico">
+          <div class="icon-wrap" style="background:#EDE9FE;">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#7C3AED" stroke-width="2">
+              <path stroke-linecap="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:14px;color:#0F172A;">Técnico</div>
+            <div style="font-size:12px;color:#94A3B8;margin-top:2px;">Acceso para técnicos que operan en distintas sedes</div>
+          </div>
+        </label>
+
+        <!-- Persona / General -->
+        <label class="tipo-card" id="cardPersona" onclick="seleccionarTipo('persona')">
+          <input type="radio" name="tipoReg" value="persona">
+          <div class="icon-wrap" style="background:#EAF3DE;">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#16A871" stroke-width="2">
+              <path stroke-linecap="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:14px;color:#0F172A;">Persona / General</div>
+            <div style="font-size:12px;color:#94A3B8;margin-top:2px;">Acceso general para personal administrativo</div>
+          </div>
+        </label>
+
+      </div>
+
+      <button onclick="continuarRegistro()" class="btn-primary" style="margin-top:22px;opacity:.5;" id="btnContinuarTipo" disabled>
+        Continuar →
+      </button>
+    </div>
+
+    <!-- ══ VISTA: SOLICITAR ACCESO (formulario único y corto) ══ -->
+    <div id="viewRegistro" style="display:none;">
+      <button onclick="irATipoRegistro()" style="display:flex;align-items:center;gap:5px;font-size:12px;color:#94A3B8;background:none;border:none;cursor:pointer;font-family:inherit;margin-bottom:18px;padding:0;">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M15 19l-7-7 7-7"/></svg>
+        Volver
+      </button>
+
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <div id="regIconWrap" style="width:38px;height:38px;background:#E6F1FB;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#0C6EDE" stroke-width="2"><path stroke-linecap="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        </div>
+        <div>
+          <div style="font-family:Syne,sans-serif;font-weight:700;font-size:17px;color:#0F172A;" id="regTitulo">Solicitar acceso</div>
+          <div style="font-size:12px;color:#94A3B8;">Requiere aprobación del administrador</div>
+        </div>
+      </div>
+
+      <div id="regAlerta" class="alerta"></div>
+
+      <div style="display:flex;flex-direction:column;gap:13px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;" id="regNombreGrid">
+          <div>
+            <label class="lbl" id="regLblNombre">Nombre</label>
+            <input id="reg-nombre" class="inp" placeholder="Tu nombre" oninput="this.value=this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g,'')">
+          </div>
+          <div id="regApellidoDiv">
+            <label class="lbl">Apellido</label>
+            <input id="reg-apellido" class="inp" placeholder="Tu apellido" oninput="this.value=this.value.replace(/[^a-zA-ZÀ-ÿ\s]/g,'')">
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div>
+            <label class="lbl">Usuario</label>
+            <input id="reg-usuario" class="inp" placeholder="Nombre de usuario único">
+          </div>
+          <div>
+            <label class="lbl">Contraseña</label>
+            <div style="position:relative;">
+              <input id="reg-pass" type="password" class="inp" placeholder="Mínimo 6 caracteres" style="padding-right:44px;">
+              <button type="button" onclick="togglePass('reg-pass')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94A3B8;padding:4px;">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="display:flex;flex-direction:column;justify-content:flex-end;">
+            <label class="lbl">Correo <span style="font-weight:400;text-transform:none;color:#94A3B8;">(opcional)</span></label>
+            <input id="reg-correo" type="email" class="inp" autocomplete="off" placeholder="tucorreo@ejemplo.com">
+          </div>
+          <div style="display:flex;flex-direction:column;justify-content:flex-end;">
+            <label class="lbl">Teléfono <span style="font-weight:400;text-transform:none;color:#94A3B8;">(opcional)</span></label>
+            <input id="reg-telefono" type="tel" class="inp" autocomplete="off" placeholder="Ej: 3001234567" maxlength="10" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+          </div>
+        </div>
+
+        <div id="regCargoDiv">
+          <label class="lbl">Cargo <span style="font-weight:400;text-transform:none;color:#94A3B8;">(opcional)</span></label>
+          <input id="reg-cargo" class="inp" placeholder="Ej: Técnico, Soporte…">
+        </div>
+
+        <div>
+          <label class="lbl" id="regLblSede">Sede / Municipio</label>
+          <select id="reg-sede" class="inp">
+            <option value="">Selecciona tu sede…</option>
+          </select>
+        </div>
+
+        <div style="display:flex;align-items:flex-start;gap:8px;">
+          <input type="checkbox" id="reg-acepta-terminos" style="margin-top:3px;flex-shrink:0;">
+          <label for="reg-acepta-terminos" style="font-size:12px;color:#64748B;line-height:1.45;cursor:pointer;">
+            Al continuar, usted acepta los <a href="https://integradossys.com/wp-content/uploads/2024/04/MANUAL-INTERNO-DE-POLITICAS-PARA-LA-PROTECCION-DE-DATOS-PERSONALES.pdf" target="_blank" rel="noopener" style="color:#0C6EDE;text-decoration:underline;">términos y condiciones y el tratamiento de datos personales</a>.
+          </label>
+        </div>
+      </div>
+
+      <button onclick="registrarUsuario()" id="btnRegistrar" class="btn-ok" style="margin-top:20px;">
+        Enviar solicitud de acceso
+      </button>
+    </div>
+
+    <!-- ══ VISTA: OLVIDÉ CONTRASEÑA — PASO 1: pedir código ══ -->
+    <div id="viewOlvidePass" style="display:none;">
+      <button onclick="irALogin()" style="display:flex;align-items:center;gap:5px;font-size:12px;color:#94A3B8;background:none;border:none;cursor:pointer;font-family:inherit;margin-bottom:18px;padding:0;">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M15 19l-7-7 7-7"/></svg>
+        Volver al login
+      </button>
+
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <div style="width:38px;height:38px;background:#E6F1FB;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#0C6EDE" stroke-width="2"><path stroke-linecap="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+        </div>
+        <div>
+          <div style="font-family:Syne,sans-serif;font-weight:700;font-size:17px;color:#0F172A;">Recuperar contraseña</div>
+          <div style="font-size:12px;color:#94A3B8;">Te enviaremos un código a tu correo</div>
+        </div>
+      </div>
+
+      <div id="olvideAlerta" class="alerta"></div>
+
+      <div style="margin-bottom:16px;">
+        <label class="lbl">Nombre de usuario</label>
+        <input id="olvideUsuario" class="inp" placeholder="Tu nombre de usuario" onkeydown="if(event.key==='Enter')solicitarRecuperacion()">
+      </div>
+
+      <button onclick="solicitarRecuperacion()" id="btnSolicitar" class="btn-primary">
+        Enviar código
+      </button>
+    </div>
+
+    <!-- ══ VISTA: OLVIDÉ CONTRASEÑA — PASO 2: código + nueva contraseña ══ -->
+    <div id="viewCodigoPass" style="display:none;">
+      <button onclick="irAOlvidePass()" style="display:flex;align-items:center;gap:5px;font-size:12px;color:#94A3B8;background:none;border:none;cursor:pointer;font-family:inherit;margin-bottom:18px;padding:0;">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M15 19l-7-7 7-7"/></svg>
+        Volver
+      </button>
+
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <div style="width:38px;height:38px;background:#E6F1FB;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#0C6EDE" stroke-width="2"><path stroke-linecap="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+          <div style="font-family:Syne,sans-serif;font-weight:700;font-size:17px;color:#0F172A;">Ingresa el código</div>
+          <div style="font-size:12px;color:#94A3B8;" id="codigoEnviadoA">Revisa tu correo</div>
+        </div>
+      </div>
+
+      <div id="codigoAlerta" class="alerta"></div>
+
+      <!-- Sub-paso A: solo el código -->
+      <div id="subPasoCodigo">
+        <div>
+          <label class="lbl">Código de 6 dígitos</label>
+          <div style="display:flex;gap:8px;justify-content:center;" id="codigoInputsWrap">
+            <input class="codigo-input" maxlength="1" inputmode="numeric" data-idx="0">
+            <input class="codigo-input" maxlength="1" inputmode="numeric" data-idx="1">
+            <input class="codigo-input" maxlength="1" inputmode="numeric" data-idx="2">
+            <input class="codigo-input" maxlength="1" inputmode="numeric" data-idx="3">
+            <input class="codigo-input" maxlength="1" inputmode="numeric" data-idx="4">
+            <input class="codigo-input" maxlength="1" inputmode="numeric" data-idx="5">
+          </div>
+          <div style="text-align:center;margin-top:10px;">
+            <button onclick="reenviarCodigo()" id="btnReenviar" style="font-size:12px;color:#0C6EDE;background:none;border:none;cursor:pointer;font-family:inherit;">Reenviar código</button>
+          </div>
+        </div>
+        <button onclick="verificarCodigo()" id="btnVerificarCodigo" class="btn-primary" style="margin-top:20px;">Verificar código</button>
+      </div>
+
+      <!-- Sub-paso B: nueva contraseña (solo aparece si el código fue correcto) -->
+      <div id="subPasoPass" style="display:none;">
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div>
+            <label class="lbl">Nueva contraseña</label>
+            <div style="position:relative;">
+              <input id="newPass" type="password" class="inp" placeholder="Mínimo 6 caracteres" style="padding-right:44px;" oninput="checkPassStrength('newPass','passBar','passTxt')">
+              <button onclick="togglePass('newPass','eyeNewPass')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94A3B8;padding:4px;" id="eyeNewPass">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </button>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+              <div class="pass-bar" id="passBar" style="flex:1;"></div>
+              <span id="passTxt" style="font-size:11px;color:#94A3B8;width:50px;text-align:right;"></span>
+            </div>
+          </div>
+          <div>
+            <label class="lbl">Confirmar contraseña</label>
+            <input id="newPass2" type="password" class="inp" placeholder="Repite la contraseña" onkeydown="if(event.key==='Enter')restablecerConCodigo()">
+          </div>
+        </div>
+        <button onclick="restablecerConCodigo()" id="btnRestablecer" class="btn-primary" style="margin-top:20px;">Guardar nueva contraseña</button>
+      </div>
+    </div>
+
+    <!-- ══ VISTA: ÉXITO ══ -->
+    <div id="viewExito" style="display:none;text-align:center;padding:10px 0;">
+      <div style="width:60px;height:60px;background:#EAF3DE;border-radius:99px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+        <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="#16A871" stroke-width="2.5"><path stroke-linecap="round" d="M5 13l4 4L19 7"/></svg>
+      </div>
+      <h2 style="font-family:Syne,sans-serif;font-weight:700;font-size:20px;color:#0F172A;margin:0 0 8px;" id="exitoTitulo">¡Solicitud enviada!</h2>
+      <p style="font-size:13px;color:#64748B;margin:0 0 6px;" id="exitoMsg">Tu solicitud fue recibida y está pendiente de aprobación por el administrador.</p>
+      <p style="font-size:12px;color:#94A3B8;margin:0 0 24px;">Recibirás acceso una vez que sea aprobada.</p>
+      <button onclick="irALogin()" class="btn-primary">Ir al inicio de sesión</button>
+    </div>
+
+  </div><!-- /contenido -->
+</div><!-- /mainCard -->
+
+<script src="js/auth.js?v=5"></script>
+<script>
+// Override login() para usar API PHP en vez de localStorage
+async function login(){
+  const usuario = (document.getElementById('loginUsuario')?.value||'').trim();
+  const pass    = document.getElementById('loginPass')?.value||'';
+  const alerta  = document.getElementById('loginAlerta');
+  const btn     = document.querySelector('.btn-primary');
+
+  if(!usuario||!pass){
+    alerta.textContent='Ingresa usuario y contraseña.';
+    alerta.className='alerta error'; return;
+  }
+
+  if(btn){btn.disabled=true;btn.textContent='Verificando…';}
+
+  try{
+    const res  = await fetch('api/auth.php?action=login',{
+      method:'POST', credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({usuario, password:pass})
+    });
+    const data = await res.json();
+
+    if(!res.ok || data.error){
+      const msg = data.error||'Usuario o contraseña incorrectos.';
+      // Mensaje especial para cuenta desactivada
+      if(msg.toLowerCase().includes('desactivada')||msg.toLowerCase().includes('desactiv')){
+        alerta.innerHTML=`<strong>⛔ Cuenta desactivada</strong><br>
+          Tu cuenta ha sido desactivada. Comunícate con el administrador del sistema para reactivarla.`;
+        alerta.className='alerta error';
+      } else if(msg.toLowerCase().includes('pendiente')){
+        alerta.innerHTML=`<strong>⏳ Cuenta pendiente</strong><br>
+          Tu cuenta está pendiente de aprobación. El administrador la revisará pronto.`;
+        alerta.className='alerta warn';
+      } else {
+        alerta.textContent=msg;
+        alerta.className='alerta error';
+      }
+      if(btn){btn.disabled=false;btn.textContent='Entrar al sistema';}
+      return;
+    }
+
+    // Éxito
+    alerta.textContent=`Bienvenido${data.nombre?' '+data.nombre:''}. Entrando…`;
+    alerta.className='alerta success';
+    setTimeout(()=>{ window.location.href='dashboard.html'; }, 700);
+
+  }catch(e){
+    alerta.textContent='Error de conexión. Verifica que el servidor esté activo.';
+    alerta.className='alerta error';
+    if(btn){btn.disabled=false;btn.textContent='Entrar al sistema';}
+  }
+}
+
+// ── Olvidé contraseña — flujo por código de 6 dígitos ──────────────────
+let _usuarioRecuperacion = ''; // se guarda entre pasos, para no pedirlo dos veces
+let _codigoVerificado = ''; // el código ya confirmado como correcto en el paso anterior
+
+function irAOlvidePass() {
+  ocultarTodos();
+  document.getElementById('viewOlvidePass').style.display = '';
+  document.getElementById('olvideUsuario').focus();
+}
+
+async function solicitarRecuperacion() {
+  const usuario = (document.getElementById('olvideUsuario')?.value || '').trim();
+  const alerta  = document.getElementById('olvideAlerta');
+  const btn     = document.getElementById('btnSolicitar');
+
+  alerta.className = 'alerta';
+  if (!usuario) { alerta.textContent = 'Ingresa tu nombre de usuario.'; alerta.className = 'alerta error'; return; }
+
+  btn.disabled = true; btn.textContent = 'Enviando…';
+
+  try {
+    const res  = await fetch('api/recuperar_password.php?action=solicitar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuario })
+    });
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      alerta.textContent = data.error || 'Error al procesar la solicitud.';
+      alerta.className = 'alerta error';
+      btn.disabled = false; btn.textContent = 'Enviar código';
+    } else {
+      _usuarioRecuperacion = usuario;
+      btn.disabled = false; btn.textContent = 'Enviar código';
+      irAVistaCodigo(usuario);
+    }
+  } catch(e) {
+    alerta.textContent = 'Error de conexión. Verifica que el servidor esté activo.';
+    alerta.className = 'alerta error';
+    btn.disabled = false; btn.textContent = 'Enviar código';
+  }
+}
+
+function irAVistaCodigo(usuario){
+  ocultarTodos();
+  document.getElementById('viewCodigoPass').style.display = '';
+  document.getElementById('codigoEnviadoA').textContent = `Enviamos un código de 6 dígitos a tu correo (usuario: ${usuario})`;
+  document.getElementById('codigoAlerta').className = 'alerta';
+  document.getElementById('newPass').value = '';
+  document.getElementById('newPass2').value = '';
+  checkPassStrength('newPass','passBar','passTxt');
+  // Siempre se vuelve a mostrar primero el sub-paso del código.
+  document.getElementById('subPasoCodigo').style.display = '';
+  document.getElementById('subPasoPass').style.display = 'none';
+  // Limpiar y enfocar las casillas del código
+  const inputs = document.querySelectorAll('#codigoInputsWrap .codigo-input');
+  inputs.forEach(inp => inp.value = '');
+  setTimeout(()=> inputs[0]?.focus(), 100);
+}
+
+async function verificarCodigo(){
+  const inputs = document.querySelectorAll('#codigoInputsWrap .codigo-input');
+  const codigo = Array.from(inputs).map(i=>i.value).join('');
+  const alerta = document.getElementById('codigoAlerta');
+  const btn    = document.getElementById('btnVerificarCodigo');
+
+  alerta.className = 'alerta';
+  if (codigo.length !== 6) { alerta.textContent = 'Escribe los 6 dígitos del código.'; alerta.className = 'alerta error'; return; }
+
+  btn.disabled = true; btn.textContent = 'Verificando…';
+
+  try {
+    const res  = await fetch('api/recuperar_password.php?action=verificar_codigo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuario: _usuarioRecuperacion, codigo })
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) {
+      alerta.textContent = data.error || 'Código incorrecto.';
+      alerta.className = 'alerta error';
+      btn.disabled = false; btn.textContent = 'Verificar código';
+    } else {
+      // Código correcto — ahora sí se muestra el paso de nueva contraseña.
+      _codigoVerificado = codigo;
+      alerta.className = 'alerta';
+      document.getElementById('subPasoCodigo').style.display = 'none';
+      document.getElementById('subPasoPass').style.display = '';
+      document.getElementById('newPass').focus();
+      btn.disabled = false; btn.textContent = 'Verificar código';
+    }
+  } catch(e) {
+    alerta.textContent = 'Error de conexión.';
+    alerta.className = 'alerta error';
+    btn.disabled = false; btn.textContent = 'Verificar código';
+  }
+}
+
+async function reenviarCodigo(){
+  const btn = document.getElementById('btnReenviar');
+  const alerta = document.getElementById('codigoAlerta');
+  if(!_usuarioRecuperacion) return;
+  btn.disabled = true; btn.textContent = 'Enviando…';
+  try{
+    const res = await fetch('api/recuperar_password.php?action=solicitar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuario: _usuarioRecuperacion })
+    });
+    const data = await res.json();
+    if(!res.ok || data.error){
+      alerta.textContent = data.error || 'No se pudo reenviar el código.';
+      alerta.className = 'alerta error';
+    } else {
+      alerta.textContent = '✓ Código reenviado. Revisa tu correo.';
+      alerta.className = 'alerta success';
+    }
+  }catch(e){
+    alerta.textContent = 'Error de conexión.';
+    alerta.className = 'alerta error';
+  }
+  btn.disabled = false; btn.textContent = 'Reenviar código';
+}
+
+async function restablecerConCodigo(){
+  const codigo = _codigoVerificado;
+  const pass1  = document.getElementById('newPass').value;
+  const pass2  = document.getElementById('newPass2').value;
+  const alerta = document.getElementById('codigoAlerta');
+  const btn    = document.getElementById('btnRestablecer');
+
+  alerta.className = 'alerta';
+  if (!pass1 || !pass2) { alerta.textContent = 'Completa los dos campos de contraseña.'; alerta.className = 'alerta error'; return; }
+  if (pass1.length < 6)  { alerta.textContent = 'La contraseña debe tener al menos 6 caracteres.'; alerta.className = 'alerta error'; return; }
+  if (pass1 !== pass2)   { alerta.textContent = 'Las contraseñas no coinciden.'; alerta.className = 'alerta error'; return; }
+
+  btn.disabled = true; btn.textContent = 'Guardando…';
+
+  try {
+    const res  = await fetch('api/recuperar_password.php?action=restablecer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuario: _usuarioRecuperacion, codigo, password: pass1 })
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) {
+      alerta.textContent = data.error || 'Error al restablecer.';
+      alerta.className = 'alerta error';
+      btn.disabled = false; btn.textContent = 'Guardar nueva contraseña';
+    } else {
+      ocultarTodos();
+      document.getElementById('exitoTitulo').textContent = '¡Contraseña actualizada!';
+      document.getElementById('exitoMsg').textContent = 'Tu contraseña fue cambiada correctamente. Ya puedes iniciar sesión.';
+      document.getElementById('viewExito').style.display = '';
+    }
+  } catch(e) {
+    alerta.textContent = 'Error de conexión.';
+    alerta.className = 'alerta error';
+    btn.disabled = false; btn.textContent = 'Guardar nueva contraseña';
+  }
+}
+
+// Auto-avanzar entre las casillas del código al escribir, y permitir pegar el código completo
+document.addEventListener('DOMContentLoaded', () => {
+  const inputs = document.querySelectorAll('#codigoInputsWrap .codigo-input');
+  inputs.forEach((inp, idx) => {
+    inp.addEventListener('input', () => {
+      inp.value = inp.value.replace(/[^0-9]/g, '');
+      if (inp.value && idx < inputs.length - 1) inputs[idx+1].focus();
+    });
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !inp.value && idx > 0) inputs[idx-1].focus();
+    });
+    inp.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const texto = (e.clipboardData.getData('text')||'').replace(/[^0-9]/g,'').slice(0,6);
+      texto.split('').forEach((c,i) => { if (inputs[i]) inputs[i].value = c; });
+      if (texto.length) inputs[Math.min(texto.length,inputs.length)-1].focus();
+    });
+  });
+});
+
+function irALogin() {
+  ocultarTodos();
+  if (typeof tipoRegistroSeleccionado !== 'undefined') tipoRegistroSeleccionado = null;
+  const v = document.getElementById('viewLogin');
+  if(v) v.style.display = '';
+}
+
+function irARegistro() {
+  ocultarTodos();
+  if (typeof tipoRegistroSeleccionado !== 'undefined') tipoRegistroSeleccionado = null;
+  ['cardMunicipio','cardTecnico','cardPersona'].forEach(id => document.getElementById(id)?.classList.remove('selected'));
+  const btn = document.getElementById('btnContinuarTipo');
+  if (btn) { btn.disabled = true; btn.style.opacity = '.5'; }
+  const v = document.getElementById('viewTipoRegistro');
+  if(v) v.style.display = '';
+}
+
+function ocultarTodos() {
+  ['viewLogin','viewTipoRegistro','viewRegistro','viewExito','viewOlvidePass','viewCodigoPass']
+    .forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
+}
+</script>
+
+</body>
+</html>
