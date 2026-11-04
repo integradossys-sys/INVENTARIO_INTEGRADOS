@@ -97,6 +97,13 @@ if ($method === 'POST' && $action === 'crear') {
     if ($nombre === '') responder(['error' => 'El nombre del modelo es obligatorio'], 400);
 
     try {
+        // El ID de MikroWisp no puede repetirse entre modelos
+        if ($idMkw !== '') {
+            $dupMkw = $pdo->prepare("SELECT nombre FROM modelos_ont WHERE TRIM(id_mikrowisp) = ? AND activo = 1 AND id <> ? LIMIT 1");
+            $dupMkw->execute([$idMkw, 0]);
+            $otro = $dupMkw->fetchColumn();
+            if ($otro !== false) responder(['error' => "El ID MikroWisp \"$idMkw\" ya lo tiene el modelo \"$otro\""], 409);
+        }
         // Evitar duplicados por nombre
         $dup = $pdo->prepare("SELECT id FROM modelos_ont WHERE nombre = ? AND activo = 1");
         $dup->execute([$nombre]);
@@ -130,6 +137,13 @@ if ($method === 'POST' && $action === 'actualizar') {
     if ($nombre === '') responder(['error' => 'El nombre es obligatorio'], 400);
 
     try {
+        // El ID de MikroWisp no puede repetirse entre modelos
+        if ($idMkw !== '') {
+            $dupMkw = $pdo->prepare("SELECT nombre FROM modelos_ont WHERE TRIM(id_mikrowisp) = ? AND activo = 1 AND id <> ? LIMIT 1");
+            $dupMkw->execute([$idMkw, $id]);
+            $otro = $dupMkw->fetchColumn();
+            if ($otro !== false) responder(['error' => "El ID MikroWisp \"$idMkw\" ya lo tiene el modelo \"$otro\""], 409);
+        }
         $pdo->prepare("UPDATE modelos_ont SET nombre=?, marca=?, descripcion=?, id_mikrowisp=? WHERE id=?")
             ->execute([$nombre, $marca ?: null, $desc ?: null, $idMkw ?: null, $id]);
         $pdo->prepare("UPDATE productos SET nombre = ? WHERE modelo_ont_id = ?")->execute(["ONT " . $nombre, $id]);
