@@ -492,7 +492,7 @@ async function _guardarIdMikrowispInline(id, input){
     m.id_mikrowisp = nuevoId || null;
     toast(nuevoId?`✓ ID MikroWisp "${nuevoId}" asignado a "${m.nombre}"`:'ID MikroWisp quitado','success');
     renderPanelModelosOnt();
-  }catch(e){ toast(e.message,'error'); }
+  }catch(e){ input.value = m.id_mikrowisp||''; toast(e.message,'error'); }
 }
 
 function renderPanelModelosOnt(){
@@ -1450,7 +1450,10 @@ function _cpValidarBlur(inputId){
 }
 // Aviso (modal) cuando se escribe un cliente/proyecto que no existe todavía.
 function _cpAvisoNuevo(inputId, nombre){
+  // Ya no se muestra el aviso "es nuevo": se abre directo el formulario de "Nuevo proyecto" con el nombre escrito.
   document.getElementById('modalCpNuevo')?.remove();
+  abrirCrearProyecto(nombre, inputId);
+  return;
   const m = document.createElement('div');
   m.id = 'modalCpNuevo'; m.className = 'modal-bg open';
   m.style.zIndex = '10000';
