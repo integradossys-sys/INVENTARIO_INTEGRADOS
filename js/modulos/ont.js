@@ -35,6 +35,7 @@ async function abrirEnvioMultiple() {
   const hidden = document.getElementById('emModoHidden');
   if(hidden) hidden.value = _emModo;
 
+  window._emEstado = {};
   document.getElementById('emBuscar').value = '';
   document.getElementById('emNota').value = '';
   document.getElementById('emProductosWrap').style.display = 'none';
@@ -141,6 +142,7 @@ function _renderEmLista(productos, q) {
   };
   const lista = document.getElementById('emProductosLista');
   if (!lista) return;
+  _emGuardarEstado();
   if (!productos.length) {
     lista.innerHTML = `<div class="!p-[24px] !text-center !text-[#94A3B8] !text-[13px]">Sin productos que coincidan.</div>`;
     return;
@@ -176,6 +178,7 @@ function _renderEmLista(productos, q) {
       <div class="!text-center !text-[11px] !text-[#94A3B8]">${esRollo ? ('rollo'+(maxInput!=1?'s':'')) : (p.unidad === 'metros' ? 'mts.' : 'uds.')}</div>
     </div>`;
   }).join('');
+  _emRestaurarEstado();
   _actualizarBotonMultiple();
 }
 
@@ -227,18 +230,54 @@ function actualizarEmResumen() {
   _actualizarBotonMultiple();
 }
 
+// Los productos marcados se recuerdan aunque la lista se vuelva a pintar
+// (al buscar, filtrar o cambiar de destinatario) — antes se perdían.
+function _emGuardarEstado() {
+  window._emEstado = window._emEstado || {};
+  document.querySelectorAll('#emProductosLista .em-row').forEach(row => {
+    const ref = row.id.replace(/^emrow_/, '');
+    if (row.classList.contains('em-seleccionado')) {
+      window._emEstado[ref] = {
+        cant: document.getElementById('emcant_' + ref)?.value || '',
+        origen: document.getElementById('emorigen_' + ref)?.value || 'nuevo'
+      };
+    } else {
+      delete window._emEstado[ref];
+    }
+  });
+}
+function _emRestaurarEstado() {
+  const est = window._emEstado || {};
+  Object.keys(est).forEach(ref => {
+    const row = document.getElementById('emrow_' + ref);
+    const check = document.getElementById('emcheck_' + ref);
+    const icon = document.getElementById('emcheckIcon_' + ref);
+    const input = document.getElementById('emcant_' + ref);
+    if (!row || !check || !input) return;
+    row.classList.add('em-seleccionado');
+    check.style.background = '#0C6EDE';
+    check.style.borderColor = '#0C6EDE';
+    if (icon) icon.style.display = '';
+    input.disabled = false;
+    input.style.opacity = '1';
+    input.value = est[ref].cant;
+    const o = document.getElementById('emorigen_' + ref);
+    if (o) o.value = est[ref].origen;
+  });
+}
+
 function _getEmSeleccionados() {
+  _emGuardarEstado();
+  const est = window._emEstado || {};
   const productos = _emTodosLosItems();
   const resultado = [];
   productos.forEach(p => {
-    const row = document.getElementById('emrow_' + p.ref);
-    if (row && row.classList.contains('em-seleccionado')) {
-      const cantEl = document.getElementById('emcant_' + p.ref);
-      const cantInput = parseInt(cantEl?.value) || 0;
+    const e = est[p.ref];
+    if (e) {
+      const cantInput = parseInt(e.cant) || 0;
       const esRollo = p.metrosPorUnidad > 0;
       const cant = esRollo ? cantInput * p.metrosPorUnidad : cantInput;
-      const origenEl = document.getElementById('emorigen_' + p.ref);
-      const origenStock = origenEl?.value || 'nuevo';
+      const origenStock = e.origen || 'nuevo';
       const stockDisponible = origenStock==='recuperado' ? (p.stockRecuperado||0) : _stockCentral(p);
       resultado.push({ ref: p.ref, nombre: p.nombre, unidad: p.unidad || 'unidad', cantidad: cant, stockNeiva: stockDisponible, origenStock });
     }
