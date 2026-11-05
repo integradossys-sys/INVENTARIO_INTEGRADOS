@@ -44,6 +44,17 @@ function setTabSeg(t){
 // Compara nombres de sede sin importar mayúsculas/minúsculas ni espacios extra
 // (mismo criterio ya usado en el backend, para evitar que un espacio o una
 // mayúscula distinta esconda botones que sí deberían mostrarse).
+// ¿Esta sesión puede despachar/cancelar este envío aprobado? (misma regla que el servidor)
+function _puedeDespacharSeg(s){
+  if(sesion.rol==='superadmin') return true;
+  const items = s._esGrupo ? s._items : [s];
+  return items.every(i=>{
+    if(!['solicitud','pedido'].includes(i.tipo)) return true;
+    const o=(i.origen||'').trim().toLowerCase();
+    if(!o || o==='almacen central') return true;
+    return sesion.usuario===i.enviado_por || sesion.usuario===i.origen;
+  });
+}
 function _sedesIguales(a,b){
   return (a||'').trim().toLowerCase() === (b||'').trim().toLowerCase();
 }
@@ -142,7 +153,7 @@ function renderSeguimiento(){
     const rol = sesion.rol;
     let acciones = '';
     const esDuenioDevolucionFibra = s.tipo==='fibra_devolucion' && _sedesIguales(sesion.sede, s.origen);
-    if(s.estado==='aprobado' && (rol==='superadmin'||tienePermiso('despachar')||esDuenioDevolucionFibra)){
+    if(s.estado==='aprobado' && (rol==='superadmin'||tienePermiso('despachar')||esDuenioDevolucionFibra) && _puedeDespacharSeg(s)){
       const idsAprobados = s._esGrupo ? s._items.filter(i=>i.estado==='aprobado').map(i=>i.id) : [s.id];
       const _puedeCancelarAprob = (s._esGrupo ? s._items : [s]).every(i=>['solicitud','pedido','olt','mikrotik'].includes(i.tipo));
       acciones = `<div style="display:flex;flex-direction:column;gap:4px;"><button onclick="${s._esGrupo?`abrirEnCaminoGrupo('${idsAprobados.join(',')}')`:`abrirEnCamino(${s.id})`}" class="btn-sm ![background:#E6F1FB] !text-[#0C6EDE]">🚚 Despachar</button>${_puedeCancelarAprob?`<button onclick="abrirCancelarAprobado('${idsAprobados.join(',')}')" class="btn-sm ![background:#FEF2F2] !text-[#B91C1C]">✕ Cancelar</button>`:''}</div>`;
@@ -394,8 +405,8 @@ function renderSeguimiento(){
         // Primero QUIÉN lo envió/despachó (persona), y abajo la sede de origen.
         const envBy = s._esGrupo ? (s._items[0]?.enviado_por||s.enviado_por) : s.enviado_por;
         const sedeO = `<span class="badge badge-gray !text-[11px]">${_resaltarTexto(s.origen,qBuscar)}</span>`;
-        if(!envBy) return sedeO;
-        return `<div class="!text-[12px] !font-semibold !text-[#0F172A]">👤 ${_resaltarTexto(nombreUsr(envBy),qBuscar)}</div><div class="!mt-[2px]">${sedeO}</div>`;
+        if(!envBy) return `<div class="!text-[12px] !font-semibold !text-[#0F172A]">${_resaltarTexto(s.origen,qBuscar)}</div>`;
+        return `<div class="!text-[12px] !font-semibold !text-[#0F172A]">👤 ${_resaltarTexto(nombreUsr(envBy),qBuscar)}</div>`;
       })()}</td>
       <td>${(()=>{
         // Primero QUIÉN recibe (persona), y abajo pequeño la sede. Si no hay
@@ -405,8 +416,8 @@ function renderSeguimiento(){
         const m = (notasRef||'').match(/Recoge en persona:\s*(.+)$/m) || (notasRef||'').match(/Destinatario ONT:\s*(.+)$/m);
         const persona = m ? m[1].trim() : (solic||'');
         const sede = _resaltarTexto(s.destino,qBuscar);
-        if(!persona) return `<span class="badge badge-brand !text-[11px]">${sede}</span>`;
-        return `<span class="badge badge-brand !text-[11px]">👤 ${_resaltarTexto(nombreUsr(persona),qBuscar)}</span><div class="!text-[10px] !text-[#64748B] !mt-[2px]">${sede}</div>`;
+        if(!persona) return `<div class="!text-[12px] !font-semibold !text-[#0F172A]">${sede}</div>`;
+        return `<div class="!text-[12px] !font-semibold !text-[#0F172A]">👤 ${_resaltarTexto(nombreUsr(persona),qBuscar)}</div>`;
       })()}</td>
       <td class="!text-[12px] !text-[#475569]">${s._transportadorMixto
         ? `<span class="!text-[#B91C1C] !font-semibold" title="Los ítems de este pedido quedaron con transportadores distintos (probablemente por un reenvío parcial). Cancela el despacho y vuelve a despacharlo.">⚠️ Inconsistente</span>`
