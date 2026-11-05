@@ -143,13 +143,13 @@ if ($method === 'GET' && $action === 'listar') {
 
 /* ¿Puede esta sesión despachar/cancelar este envío aprobado?
    - Lo que sale del Almacén Central: como siempre (permiso "despachar").
-   - Lo que sale de una oficina/sede o del stock de una persona (solicitudes y pedidos
-     que NO salen del almacén): solo quien lo envió (o el dueño del stock de origen).
+   - Lo que sale de una oficina/sede o del stock de una persona (solicitudes, pedidos y
+     asignaciones que NO salen del almacén): solo quien lo envió (o el dueño del stock de origen).
      El superadmin siempre puede (es la salida de emergencia).
    Así el almacén/distribuidor no despacha por error lo que una oficina le entrega a su técnico. */
 function _puedeDespacharEnvio(array $s): bool {
     if (($_SESSION['rol'] ?? '') === 'superadmin') return true;
-    if (!in_array($s['tipo'] ?? '', ['solicitud', 'pedido'], true)) return true;
+    if (!in_array($s['tipo'] ?? '', ['solicitud', 'pedido', 'asignacion'], true)) return true;
     $origen = trim((string)($s['origen'] ?? ''));
     if ($origen === '' || strcasecmp($origen, 'Almacen Central') === 0) return true;
     $u = $_SESSION['usuario'] ?? '';
