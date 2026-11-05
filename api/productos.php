@@ -377,6 +377,9 @@ if ($method === 'POST' && $action === 'eliminar') {
 ══════════════════════════════════════ */
 if ($method === 'POST' && $action === 'ingreso_stock') {
     rolOPermiso(['superadmin'], 'registrar_ingresos');
+    // La llegada de mercancía suma al Almacén Central: solo superadmin y distribuidor.
+    if (!in_array($_SESSION['rol'] ?? '', ['superadmin', 'distribuidor'], true))
+        responder(['error' => 'Solo el superadmin y el distribuidor pueden registrar llegadas de mercancía'], 403);
     $data = json_decode(file_get_contents('php://input'), true);
     $ref  = trim($data['ref'] ?? '');
     $cant = floatval($data['cantidad'] ?? 0);
