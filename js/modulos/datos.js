@@ -49,7 +49,7 @@ function _puedeDespacharSeg(s){
   if(sesion.rol==='superadmin') return true;
   const items = s._esGrupo ? s._items : [s];
   return items.every(i=>{
-    if(!['solicitud','pedido'].includes(i.tipo)) return true;
+    if(!['solicitud','pedido','asignacion'].includes(i.tipo)) return true;
     const o=(i.origen||'').trim().toLowerCase();
     if(!o || o==='almacen central') return true;
     return sesion.usuario===i.enviado_por || sesion.usuario===i.origen;
