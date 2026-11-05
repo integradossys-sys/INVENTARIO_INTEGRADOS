@@ -169,7 +169,7 @@ const PERMISOS_DEFAULT = {
   municipio: [
     "ver_inventario","ver_historial","crear_solicitudes","enviar_material",
     "registrar_gastos","ver_mis_equipos","registrar_ont",
-    "registrar_ingresos","ver_reportes"
+    "ver_reportes"
   ],
 
   tecnico: [
