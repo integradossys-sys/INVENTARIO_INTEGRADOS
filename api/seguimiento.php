@@ -141,6 +141,21 @@ if ($method === 'GET' && $action === 'listar') {
     responder($resultado);
 }
 
+/* ¿Puede esta sesión despachar/cancelar este envío aprobado?
+   - Lo que sale del Almacén Central: como siempre (permiso "despachar").
+   - Lo que sale de una oficina/sede o del stock de una persona (solicitudes y pedidos
+     que NO salen del almacén): solo quien lo envió (o el dueño del stock de origen).
+     El superadmin siempre puede (es la salida de emergencia).
+   Así el almacén/distribuidor no despacha por error lo que una oficina le entrega a su técnico. */
+function _puedeDespacharEnvio(array $s): bool {
+    if (($_SESSION['rol'] ?? '') === 'superadmin') return true;
+    if (!in_array($s['tipo'] ?? '', ['solicitud', 'pedido'], true)) return true;
+    $origen = trim((string)($s['origen'] ?? ''));
+    if ($origen === '' || strcasecmp($origen, 'Almacen Central') === 0) return true;
+    $u = $_SESSION['usuario'] ?? '';
+    return $u !== '' && (($s['enviado_por'] ?? '') === $u || $origen === $u);
+}
+
 /* ══ MARCAR EN CAMINO ══ */
 /* ── CREAR ENVÍO DIRECTO (admin/distribuidor) ── */
 if ($method === 'POST' && $action === 'crear_envio_directo') {
@@ -292,6 +307,7 @@ if ($method === 'POST' && $action === 'en_camino') {
     $seg->execute([$id]);
     $s = $seg->fetch();
     if (!$s) responder(['error' => 'Seguimiento no encontrado'], 404);
+    if (!_puedeDespacharEnvio($s)) responder(['error' => 'Este envío sale de una oficina o de otra persona: solo quien lo envió puede despacharlo'], 403);
     // Permitir re-despacho si estaba en_camino (por cancelacion previa mal resuelta)
     $yaEnCamino = ($s['estado'] === 'en_camino');
     $origenStockDesp = trim($data['origen_stock'] ?? ''); // 'nuevo' | 'recuperado' | '' (lo que traiga el envío)
@@ -864,6 +880,7 @@ if ($method === 'POST' && $action === 'cancelar_aprobado') {
         $seg->execute([$id]);
         $s = $seg->fetch();
         if (!$s) { $pdo->rollBack(); responder(['error' => 'Seguimiento no encontrado'], 404); }
+        if (!_puedeDespacharEnvio($s)) { $pdo->rollBack(); responder(['error' => 'Este envío sale de una oficina o de otra persona: solo quien lo envió puede cancelarlo'], 403); }
         if ($s['estado'] !== 'aprobado') { $pdo->rollBack(); responder(['error' => 'Solo se puede cancelar un envío aprobado que aún no se ha despachado'], 409); }
         if (!in_array($s['tipo'], ['solicitud', 'pedido', 'olt', 'mikrotik'], true)) { $pdo->rollBack(); responder(['error' => 'Este tipo de envío no se puede cancelar desde aquí'], 400); }
 
