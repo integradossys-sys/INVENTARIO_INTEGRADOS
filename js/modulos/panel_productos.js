@@ -243,7 +243,7 @@ async function init(){
   if(tienePermiso('editar_productos')){
     const b=document.getElementById('btnAdd');if(b)b.style.display='inline-flex';
   }
-  if(rol==='superadmin'||tienePermiso('registrar_ingresos')){
+  if(rol==='superadmin'||(rol==='distribuidor'&&tienePermiso('registrar_ingresos'))){
     const bi=document.getElementById('btnIngresoStock');if(bi)bi.style.display='inline-flex';
   }
   // Envío múltiple — superadmin siempre, distribuidor solo con el permiso
