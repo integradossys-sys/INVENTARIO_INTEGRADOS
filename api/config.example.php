@@ -47,11 +47,11 @@ if (file_exists($envFile)) {
 }
 
 // ─── Credenciales de BD ──────────────────────────────────────
-$host = 'localhost';
-$db   = 'NOMBRE_DE_LA_BASE';
-$user = 'USUARIO_BD';
-$pass = 'CONTRASENA_BD';
-$port = '3306';
+$host = $_ENV['DB_HOST'] ?? '127.0.0.1';
+$db   = $_ENV['DB_NAME'] ?? 'integrados_db';
+$user = $_ENV['DB_USER'] ?? 'root';
+$pass = $_ENV['DB_PASS'] ?? 'root';
+$port = (int)($_ENV['DB_PORT'] ?? 3306);
 
 // ─── Conexión ────────────────────────────────────────────────
 try {
@@ -629,7 +629,7 @@ const PERMISOS_DEFAULT_POR_ROL = [
     'municipio' => [
         'ver_inventario','ver_historial','crear_solicitudes','enviar_material',
         'registrar_gastos','ver_mis_equipos','registrar_ont',
-        'registrar_ingresos','ver_reportes',
+        'ver_reportes',
     ],
     'tecnico' => [
         'ver_inventario','ver_historial','crear_solicitudes','enviar_material',
