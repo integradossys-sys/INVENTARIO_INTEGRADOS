@@ -1404,7 +1404,7 @@ function renderSolicitudesMunicipio(){
 
   // Contadores
   const pend=pedidos.filter(p=>p.estado==='pendiente').length;
-  const rech=pedidos.filter(p=>p.estado==='rechazado').length;
+  const rech=pedidos.filter(p=>p.estado==='rechazado'||p.estado==='rechazada').length;
   const badge=document.getElementById('badgePedidosMunicipio');
   if(badge)badge.textContent=pend?pend+' pendientes':'';
   const apro=pedidos.filter(p=>p.estado==='atendido'||p.estado==='aprobada'||p.estado==='aprobado'||p.estado==='parcial').length;
@@ -1431,6 +1431,8 @@ function renderSolicitudesMunicipio(){
     pedidos=pedidos.filter(p=>p.estado==='en_camino');
   else if(_tabPed==='recibida')
     pedidos=pedidos.filter(p=>p.estado==='recibida'||p.estado==='recibido');
+  else if(_tabPed==='rechazado')
+    pedidos=pedidos.filter(p=>p.estado==='rechazado'||p.estado==='rechazada');
   else if(_tabPed!=='todos')
     pedidos=pedidos.filter(p=>p.estado===_tabPed);
   if(q) pedidos=pedidos.filter(p=>(p.nombre||'').toLowerCase().includes(q)||(p.ref||'').toLowerCase().includes(q)
