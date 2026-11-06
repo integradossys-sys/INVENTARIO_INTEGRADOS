@@ -166,12 +166,12 @@ function renderPanelProveedores(){
       <div style="border:1.5px solid #E2E8F0;border-radius:16px;padding:18px;background:white;box-shadow:0 1px 4px rgba(0,0,0,.04);transition:box-shadow .2s,border-color .2s;"
            onmouseover="this.style.boxShadow='0 6px 20px rgba(0,0,0,.09)';this.style.borderColor='#C7D7F0'"
            onmouseout="this.style.boxShadow='0 1px 4px rgba(0,0,0,.04)';this.style.borderColor='#E2E8F0'">
-        <div class="!flex !justify-between !items-start !gap-[8px] !mb-[10px]">
-          <div class="!flex !items-center !gap-[8px]">
+        <div class="!flex !justify-between !items-start !gap-[8px] !mb-[10px]" style="flex-wrap:wrap;">
+          <div class="!flex !items-center !gap-[8px]" style="min-width:0;flex:1 1 230px;">
             <div style="width:38px;height:38px;background:#EDE9FE;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;">🏭</div>
-            <div class="![font-family:Syne,sans-serif] !font-bold !text-[15px] !text-[#0F172A]">${hlProv(p.nombre)}</div>
+            <div class="![font-family:Syne,sans-serif] !font-bold !text-[15px] !text-[#0F172A]" style="min-width:0;overflow-wrap:break-word;">${hlProv(p.nombre)}</div>
           </div>
-          <div style="display:flex;gap:5px;flex-shrink:0;">
+          <div style="display:flex;gap:5px;flex-shrink:0;margin-left:auto;">
             ${tienePermiso('editar_proveedores')?`<button class="![background:#E6F1FB] !text-[#0A58B5] ![border:none] !rounded-[8px] !p-[5px_10px] !cursor-pointer !text-[11px] !font-semibold" onclick="abrirEditarProveedor(${p.id})">Editar</button>`:''}
             ${tienePermiso('eliminar_proveedores')?`<button onclick="eliminarProveedor(${p.id},'${esc(p.nombre).replace(/'/g,"\\'")}');" style="background:#FEF2F2;color:#B91C1C;border:none;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:11px;font-weight:600;">Eliminar</button>`:''}
           </div>
@@ -629,7 +629,7 @@ function renderListaProveedores(){
   }
   cont.innerHTML=_proveedores.map(p=>`
     <div class="!flex !justify-between !items-start !gap-[10px] !p-[11px_12px] ![border:1px_solid_#E2E8F0] !rounded-[10px] !mb-[8px]">
-      <div class="![flex:1] !min-w-[0]">
+      <div class="![flex:1] !min-w-[0]" style="overflow-wrap:anywhere;word-break:break-word;">
         <div class="!font-bold !text-[14px]">🏭 ${esc(p.nombre)}</div>
         ${p.nit?`<div class="!text-[12px] !text-[#64748B] !mt-[2px]">🏢 NIT/RUT: ${esc(p.nit)}</div>`:''}
         ${p.contacto?`<div class="!text-[12px] !text-[#64748B] !mt-[2px]">👤 ${esc(p.contacto)}</div>`:''}
