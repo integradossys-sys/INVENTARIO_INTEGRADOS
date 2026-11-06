@@ -332,7 +332,9 @@ async function verDetallePedidoAgrupado(pedidoId) {
       <div class="!mt-[12px] !p-[8px_12px] ![background:#EAF3DE] !rounded-[8px] !text-[12px] !text-[#166534] !font-semibold">
         ${items.every(i=>i.estado==='pendiente'||i.estado==='en_gestion')
           ? `Total solicitado: ${totalPedidoTxt(items,false)}`
-          : `Total aprobado: ${totalPedidoTxt(items,true)}`}
+          : items.some(i=>i.estado==='aprobada')
+            ? `Total aprobado: ${totalPedidoTxt(items.filter(i=>i.estado==='aprobada'),true)}`
+            : 'Ningún producto aprobado: todo fue rechazado o cancelado.'}
       </div>`;
     modal.classList.add('open');
   } catch(e) { toast('Error al cargar detalle','error'); }
