@@ -277,7 +277,7 @@ async function verDetallePedidoAgrupado(pedidoId) {
       const cantTxt = esRolloI ? _qS.n : i.cantidad;
       const cantAprobTxt = esRolloI ? (_qA.n+' '+_qA.suf) : i.cantidad_aprobada;
       return `
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#F8FAFC;border-radius:8px;margin-bottom:6px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:8px 12px;background:#F8FAFC;border-radius:8px;margin-bottom:6px;">
         <div>
           <span class="![font-family:monospace] !text-[11px] ![background:#E2E8F0] !p-[1px_6px] !rounded-[4px] !mr-[6px]">${esc(i.ref)}</span>
           <span class="!font-semibold !text-[13px]">${esc(i.nombre)}</span>
@@ -291,6 +291,7 @@ async function verDetallePedidoAgrupado(pedidoId) {
             <span class="badge ${i.estado==='aprobada'?'badge-ok':i.estado==='rechazada'?'badge-danger':'badge-warn'}" style="font-size:10px;">${i.estado==='aprobada'?'✓ Aprobado':i.estado==='rechazada'?'✕ Rechazado':'Pendiente'}</span>
           </div>
         </div>
+        ${(i.estado==='rechazada' && i.motivo) ? `<div style="flex-basis:100%;margin-top:5px;font-size:11px;color:#DC2626;">↳ ${esc(i.motivo)}</div>` : ''}
       </div>`;
     }).join('');
 
