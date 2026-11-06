@@ -3,6 +3,15 @@
 ════════════════════════════════════════════════ */
 /* ── Ingreso de mercancía (llegó stock nuevo, se suma al existente) ── */
 let _ingresoRefActual = null;
+// Estado de un pedido múltiple tal como se muestra en las listas. Si el pedido
+// figura aprobado pero TODOS sus productos fueron rechazados/cancelados, se
+// muestra Rechazado (así no aparece en el filtro Aprobados).
+function _estadoPedAgrupBase(p){
+  const items = p.items||[];
+  if((p.estado==='aprobado'||p.estado==='parcial') && items.length && items.every(i=>i.estado==='rechazada')) return 'rechazada';
+  return p.estado==='aprobado'?'aprobada':p.estado==='rechazado'?'rechazada':p.estado==='parcial'?'aprobada':p.estado;
+}
+
 function abrirIngresoStock(){
   _ingresoRefActual = null;
   _ingresoEsFibra = null;
@@ -812,7 +821,7 @@ function renderSolicitudes(){
         unidadEnvio: 'pedido',
         solicitadoPor: p.solicitado_por,
         gestionadoPor: p.gestionado_por,
-        estado: p.estado==='aprobado'?'aprobada':p.estado==='rechazado'?'rechazada':p.estado,
+        estado: (p.estado==='parcial' && _estadoPedAgrupBase(p)==='aprobada') ? 'parcial' : _estadoPedAgrupBase(p),
         fecha: p.fecha,
         _esPedidoAgrupado: true,
         _pedidoAgrupadoId: p.id,
@@ -1370,7 +1379,7 @@ function renderSolicitudesMunicipio(){
     unidadPedido: 'pedido',
     solicitado_por: p.solicitado_por,
     estado: (()=>{
-      const base = p.estado==='aprobado'?'aprobada':p.estado==='rechazado'?'rechazada':p.estado==='parcial'?'aprobada':p.estado;
+      const base = _estadoPedAgrupBase(p);
       // Si TODOS los productos de este pedido ya están en camino (o más
       // avanzados) en su seguimiento real, se refleja aquí también.
       const items = p.items||[];
