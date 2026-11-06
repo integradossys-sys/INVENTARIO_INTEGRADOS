@@ -699,11 +699,18 @@ function _notaMotivoGrupo(pid, items){
 // Motivo del rechazo de un pedido múltiple: sale de la nota con el sello "[Rechazó · usuario] motivo".
 // Así se ve directo en la lista (antes solo aparecía dentro de "Ver detalles").
 function _motivoDecisionPedAgrup(p){
-  if(!p || !['rechazado','rechazada','parcial'].includes(p.estado)) return '';
+  const itemsP = (p && p.items) || [];
+  const todoRech = itemsP.length>0 && itemsP.every(i=>i.estado==='rechazada');
+  if(!p || !(['rechazado','rechazada','parcial'].includes(p.estado) || todoRech)) return '';
   const lineas = String(p.nota||'').split('\n');
   for(let i=lineas.length-1;i>=0;i--){
     const m = lineas[i].match(/^\[(Rechaz[oó]|Aprob[oó] parcialmente)[^\]]*\]\s*(.+)$/);
     if(m) return m[2].trim();
+  }
+  // Pedido cancelado antes de despachar: el motivo queda en sus productos
+  if(todoRech){
+    const it = itemsP.find(i=>i.motivo);
+    if(it) return String(it.motivo).trim();
   }
   return '';
 }
