@@ -882,19 +882,37 @@ if ($method === 'POST' && $action === 'cancelar_aprobado') {
         if (!$s) { $pdo->rollBack(); responder(['error' => 'Seguimiento no encontrado'], 404); }
         if (!_puedeDespacharEnvio($s)) { $pdo->rollBack(); responder(['error' => 'Este envío sale de una oficina o de otra persona: solo quien lo envió puede cancelarlo'], 403); }
         if ($s['estado'] !== 'aprobado') { $pdo->rollBack(); responder(['error' => 'Solo se puede cancelar un envío aprobado que aún no se ha despachado'], 409); }
-        if (!in_array($s['tipo'], ['solicitud', 'pedido', 'olt', 'mikrotik'], true)) { $pdo->rollBack(); responder(['error' => 'Este tipo de envío no se puede cancelar desde aquí'], 400); }
+        if (!in_array($s['tipo'], ['solicitud', 'pedido', 'olt', 'mikrotik', 'asignacion'], true)) { $pdo->rollBack(); responder(['error' => 'Este tipo de envío no se puede cancelar desde aquí'], 400); }
 
         $usuario = $_SESSION['usuario'] ?? '';
         $motivo  = mb_substr("Cancelado antes de despachar por {$usuario}: {$nota}", 0, 290);
         $pdo->prepare("UPDATE envios_seguimiento SET estado='cancelado', transportador=NULL, fecha_envio=NULL, notas=? WHERE id=? AND estado='aprobado'")
             ->execute([$motivo, $id]);
 
-        if ($s['tipo'] === 'olt' || $s['tipo'] === 'mikrotik') {
+        if ($s['tipo'] === 'olt' || $s['tipo'] === 'mikrotik' || $s['tipo'] === 'asignacion') {
+            // Asignación directa: llega a 'aprobado' solo porque se canceló un despacho, y ahí el stock ya se devolvió.
             // Equipo enviado/asignado directo: no hay solicitud que rechazar ni stock que devolver
             // (el equipo solo cambia de sede al confirmarse el recibido).
         } elseif ($s['tipo'] === 'solicitud') {
             $pdo->prepare("UPDATE solicitudes SET estado='rechazada', motivo=?, fecha_respuesta=NOW() WHERE id=? AND estado='aprobada'")
                 ->execute([$motivo, $s['referencia_id']]);
+            // Si venía de un pedido múltiple, el pedido general debe reflejarlo:
+            // todos sus productos rechazados → Rechazado; solo algunos → Parcial.
+            $qPag = $pdo->prepare("SELECT pedido_agrupado_id FROM solicitudes WHERE id = ?");
+            $qPag->execute([$s['referencia_id']]);
+            $pagId = (string)$qPag->fetchColumn();
+            if ($pagId) {
+                $qCnt = $pdo->prepare("SELECT COUNT(*) AS total, SUM(estado='rechazada') AS rech FROM solicitudes WHERE pedido_agrupado_id = ?");
+                $qCnt->execute([$pagId]);
+                $cn = $qCnt->fetch();
+                if ($cn && (int)$cn['total'] > 0) {
+                    if ((int)$cn['rech'] === (int)$cn['total']) {
+                        $pdo->prepare("UPDATE pedidos_agrupados SET estado='rechazado' WHERE id=? AND estado IN ('aprobado','parcial')")->execute([$pagId]);
+                    } elseif ((int)$cn['rech'] > 0) {
+                        $pdo->prepare("UPDATE pedidos_agrupados SET estado='parcial' WHERE id=? AND estado='aprobado'")->execute([$pagId]);
+                    }
+                }
+            }
         } else {
             $pdo->prepare("UPDATE pedidos_municipio SET estado='rechazado', motivo=?, rechazado_por=?, fecha_respuesta=NOW() WHERE id=? AND estado IN ('atendido','en_gestion')")
                 ->execute([$motivo, $usuario, $s['referencia_id']]);
