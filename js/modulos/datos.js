@@ -58,6 +58,11 @@ function _puedeDespacharSeg(s){
 function _sedesIguales(a,b){
   return (a||'').trim().toLowerCase() === (b||'').trim().toLowerCase();
 }
+// Cuenta "envíos" como los ve el usuario: un pedido múltiple (varios productos) es UNO,
+// igual que la fila que se muestra en la tabla de Seguimiento.
+function _contarUnidadesSeg(lista){
+  return new Set(lista.map(s=>_grupoSegId(s)||('i'+s.id))).size;
+}
 function _limpiarFiltrosSeg(){
   const b=document.getElementById('filtroSegBuscar'); if(b) b.value='';
   const fd=document.getElementById('filtroSegFechaDesde'); if(fd) fd.value='';
@@ -69,9 +74,9 @@ function renderSeguimiento(){
   if(!tbody)return;
   let items=[..._seguimiento];
   const st=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v||'';};
-  st('cntSegAprobado',items.filter(s=>s.estado==='aprobado').length||'');
-  st('cntSegCamino',items.filter(s=>s.estado==='en_camino').length||'');
-  st('cntSegRecibido',items.filter(s=>s.estado==='recibido').length||'');
+  st('cntSegAprobado',_contarUnidadesSeg(items.filter(s=>s.estado==='aprobado'))||'');
+  st('cntSegCamino',_contarUnidadesSeg(items.filter(s=>s.estado==='en_camino'))||'');
+  st('cntSegRecibido',_contarUnidadesSeg(items.filter(s=>s.estado==='recibido'))||'');
   if(_tabSeg!=='todos') items=items.filter(s=>s.estado===_tabSeg);
 
   // Filtro de texto libre: busca en producto, ref, origen, destino,
@@ -105,7 +110,7 @@ function renderSeguimiento(){
     return;
   }
   const estadoInfo = {
-    aprobado:  { label:'Aprobado',   cls:'badge-warn',    icon:'⏳' },
+    aprobado:  { label:'Por despachar', cls:'badge-warn', icon:'⏳' },
     en_camino: { label:'En camino',  cls:'badge-brand',   icon:'🚚' },
     entregado: { label:'Entregado',  cls:'badge-purple',  icon:'📦' },
     recibido:  { label:'Recibido',   cls:'badge-ok',      icon:'✅' },
@@ -155,7 +160,7 @@ function renderSeguimiento(){
     const esDuenioDevolucionFibra = s.tipo==='fibra_devolucion' && _sedesIguales(sesion.sede, s.origen);
     if(s.estado==='aprobado' && (rol==='superadmin'||tienePermiso('despachar')||esDuenioDevolucionFibra) && _puedeDespacharSeg(s)){
       const idsAprobados = s._esGrupo ? s._items.filter(i=>i.estado==='aprobado').map(i=>i.id) : [s.id];
-      const _puedeCancelarAprob = (s._esGrupo ? s._items : [s]).every(i=>['solicitud','pedido','olt','mikrotik'].includes(i.tipo));
+      const _puedeCancelarAprob = (s._esGrupo ? s._items : [s]).every(i=>['solicitud','pedido','olt','mikrotik','asignacion'].includes(i.tipo));
       acciones = `<div style="display:flex;flex-direction:column;gap:4px;"><button onclick="${s._esGrupo?`abrirEnCaminoGrupo('${idsAprobados.join(',')}')`:`abrirEnCamino(${s.id})`}" class="btn-sm ![background:#E6F1FB] !text-[#0C6EDE]">🚚 Despachar</button>${_puedeCancelarAprob?`<button onclick="abrirCancelarAprobado('${idsAprobados.join(',')}')" class="btn-sm ![background:#FEF2F2] !text-[#B91C1C]">✕ Cancelar</button>`:''}</div>`;
     } else if(s.estado==='en_camino'){
       // Para devoluciones (recogido/ont_devolucion), no importa si el que
