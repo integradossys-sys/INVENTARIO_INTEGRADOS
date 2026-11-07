@@ -6,6 +6,10 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
+// ─── Hora de Colombia (UTC-5, sin horario de verano). Sin esto el servidor
+// guardaba y mostraba la hora UTC (5 horas adelantada).
+date_default_timezone_set('America/Bogota');
+
 // ─── Evitar que el navegador guarde en caché las respuestas de la API.
 // Sin esto, algunas peticiones GET (notificaciones, pendientes, listados)
 // pueden quedar "congeladas" en el navegador del usuario mostrando datos
@@ -64,6 +68,8 @@ try {
             PDO::ATTR_EMULATE_PREPARES   => false,
         ]
     );
+    // Misma hora para NOW()/CURDATE() de MariaDB: así coincide con la de PHP.
+    $pdo->exec("SET time_zone = '-05:00'");
 } catch (PDOException $e) {
     $esProd = ($_ENV['APP_ENV'] ?? 'local') === 'production';
     http_response_code(500);
