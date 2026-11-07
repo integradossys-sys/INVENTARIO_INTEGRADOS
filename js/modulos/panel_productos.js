@@ -923,11 +923,10 @@ function updateNotifBadges(){
   // Badge seguimiento — deduplicar por transportador+destino+fecha_envio (pedidos múltiples = 1)
   const seg = _seguimiento || [];
   const _uniqueSeg = (lista) => {
+    // Un pedido múltiple cuenta como UNO (misma regla que la tabla de Seguimiento)
     const vistos = new Set();
     return lista.filter(s => {
-      // Agrupar por transportador + destino + fecha_envio truncada al minuto
-      const fechaMin = (s.fecha_envio||s.fecha_aprobado||'').slice(0,16);
-      const key = `${s.transportador||''}|${s.destino}|${fechaMin}|${s.estado}`;
+      const key = _grupoSegId(s) || ('i'+s.id);
       if(vistos.has(key)) return false;
       vistos.add(key); return true;
     });
