@@ -1342,10 +1342,6 @@
         </div>
         <div class="mapa-barra">
           <div class="!relative">
-            <input type="text" id="mapaBuscarPunto" placeholder="🔍 Buscar producto, cliente, quién lo hizo…" oninput="_filtrarMapaActividad()" class="inp">
-            <div id="mapaBuscarLista" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:1000;background:white;border:1.5px solid #E2E8F0;border-radius:10px;margin-top:4px;max-height:260px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.15);"></div>
-          </div>
-          <div class="!relative">
             <input type="text" id="mapaProdInput" placeholder="Todos los productos" autocomplete="off" class="inp" oninput="_mapaComboBuscar('Prod')" onfocus="_mapaComboBuscar('Prod',true)">
             <div id="mapaProdLista" style="display:none;position:absolute;top:100%;left:0;right:0;min-width:240px;z-index:1000;background:white;border:1.5px solid #E2E8F0;border-radius:10px;margin-top:4px;max-height:280px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.15);"></div>
             <select id="mapaFiltroProducto" onchange="cargarMapaActividad()" style="display:none;"><option value=""></option></select>
@@ -4387,7 +4383,7 @@
 
 
 <script src="js/modulos/base.js?v=8"></script>
-<script src="js/modulos/datos.js?v=26"></script>
+<script src="js/modulos/datos.js?v=27"></script>
 <script src="js/modulos/panel_productos.js?v=10"></script>
 <script src="js/modulos/proveedores.js?v=25"></script>
 <script src="js/modulos/solicitudes.js?v=16"></script>
