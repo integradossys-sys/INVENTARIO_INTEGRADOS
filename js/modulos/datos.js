@@ -2308,36 +2308,55 @@ function _colorParaProducto(nombre){
   _mapaColorPorProducto[clave] = _mapaPaletaColores[idx];
   return _mapaColorPorProducto[clave];
 }
-function _mapaProdBuscar(todos){
-  const inp = document.getElementById('mapaProdInput'), lista = document.getElementById('mapaProdLista'), sel = document.getElementById('mapaFiltroProducto');
+// Campos de "escribir y elegir": Prod (producto), Quien (quién lo instaló), Cli (cliente / proyecto).
+// El <select> oculto guarda el valor elegido; el campo de texto solo lo muestra y busca.
+const _MAPA_COMBOS = {
+  Prod:{todos:'Todos los productos'},
+  Quien:{todos:'Quién lo instaló: todos'},
+  Cli:{todos:'Cliente / proyecto: todos'}
+};
+function _mapaComboSel(k){ return document.getElementById('mapaFiltro'+(k==='Prod'?'Producto':k)); }
+function _mapaComboBuscar(k, todos){
+  const inp = document.getElementById('mapa'+k+'Input'), lista = document.getElementById('mapa'+k+'Lista'), sel = _mapaComboSel(k);
   if(!inp||!lista||!sel) return;
   const q = todos ? '' : inp.value.toLowerCase().trim();
-  const ops = [...sel.options].filter(o=>o.value && (!q || o.value.toLowerCase().includes(q)));
-  const fila = (val, txt, extra)=>`<div data-v="${esc(val)}" onclick="_mapaProdPick(this.dataset.v)" style="padding:9px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid #F1F5F9;${extra||''}" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='white'">${esc(txt)}</div>`;
-  lista.innerHTML = fila('', '✕ Todos los productos', 'color:#64748B;font-weight:600;') +
-    (ops.length ? ops.map(o=>fila(o.value,o.value)).join('') : '<div class="!p-[12px] !text-[#94A3B8] !text-[13px] !text-center">Sin coincidencias.</div>');
+  const ops = [...sel.options].filter(o=>o.value && (!q || (o.textContent||'').toLowerCase().includes(q)));
+  const fila = (val, txt, extra)=>`<div data-k="${k}" data-v="${esc(val)}" onclick="_mapaComboPick(this.dataset.k,this.dataset.v)" style="padding:9px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid #F1F5F9;${extra||''}" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='white'">${esc(txt)}</div>`;
+  lista.innerHTML = fila('', '✕ '+_MAPA_COMBOS[k].todos, 'color:#64748B;font-weight:600;') +
+    (ops.length ? ops.map(o=>fila(o.value,o.textContent)).join('') : '<div class="!p-[12px] !text-[#94A3B8] !text-[13px] !text-center">Sin coincidencias.</div>');
   lista.style.display='block';
 }
-function _mapaProdPick(v){
-  const sel = document.getElementById('mapaFiltroProducto'), inp = document.getElementById('mapaProdInput');
-  document.getElementById('mapaProdLista').style.display='none';
-  if(inp) inp.value = v;
-  if(sel){ sel.value = v; cargarMapaActividad(); }
+function _mapaComboPick(k, v){
+  const sel = _mapaComboSel(k), inp = document.getElementById('mapa'+k+'Input');
+  document.getElementById('mapa'+k+'Lista').style.display='none';
+  if(sel){ sel.value = v; if(inp) inp.value = v ? ([...sel.options].find(o=>o.value===v)?.textContent||v) : ''; cargarMapaActividad(); }
+}
+function _mapaComboSync(k){
+  const sel = _mapaComboSel(k), inp = document.getElementById('mapa'+k+'Input');
+  if(inp && sel && document.activeElement!==inp) inp.value = sel.value ? ([...sel.options].find(o=>o.value===sel.value)?.textContent||sel.value) : '';
+}
+function _mapaLimpiarFiltros(){
+  ['mapaFiltroDesde','mapaFiltroHasta','mapaBuscarPunto','mapaFiltroRol','mapaFiltroProducto','mapaFiltroQuien','mapaFiltroCli'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
+  ['Prod','Quien','Cli'].forEach(k=>{ const i=document.getElementById('mapa'+k+'Input'); if(i) i.value=''; });
+  cargarMapaActividad();
 }
 document.addEventListener('click', function(e){
-  const l = document.getElementById('mapaProdLista'), i = document.getElementById('mapaProdInput');
-  if(l && i && !i.contains(e.target) && !l.contains(e.target)){
+  ['Prod','Quien','Cli'].forEach(k=>{
+    const l = document.getElementById('mapa'+k+'Lista'), i = document.getElementById('mapa'+k+'Input');
+    if(!(l && i) || i.contains(e.target) || l.contains(e.target)) return;
+    if(l.style.display==='none') return;
     l.style.display='none';
-    const sel = document.getElementById('mapaFiltroProducto');
+    const sel = _mapaComboSel(k);
     if(sel && !i.value.trim() && sel.value){ sel.value=''; cargarMapaActividad(); }
-    else if(sel) i.value = sel.value;
-  }
+    else _mapaComboSync(k);
+  });
 });
+const _MAPA_ROLES = {superadmin:'Administrador', distribuidor:'Distribuidor', municipio:'Oficina / municipio', tecnico:'Técnico', persona:'Persona'};
 function _mapaElegirProducto(nombre){
   const sel = document.getElementById('mapaFiltroProducto');
   if(!sel) return;
   sel.value = (sel.value===nombre) ? '' : nombre;
-  const pi = document.getElementById('mapaProdInput'); if(pi) pi.value = sel.value;
+  _mapaComboSync('Prod');
   cargarMapaActividad();
 }
 function _filtrarMapaActividad(){
@@ -2436,8 +2455,27 @@ async function cargarMapaActividad(){
     let puntos = Array.isArray(data?.puntos) ? data.puntos : [];
     if(loading) loading.style.display='none';
 
-    // Llenar el desplegable de productos con lo disponible, conservando
-    // la selección actual si sigue existiendo entre las opciones.
+    // Opciones de los filtros según lo que hay en el rango de fechas elegido
+    const llenar = (id, valores, etiqueta, todos)=>{
+      const sel = document.getElementById(id); if(!sel) return;
+      const actual = sel.value;
+      sel.innerHTML = `<option value="">${todos}</option>` + valores.map(v=>`<option value="${esc(v)}">${esc(etiqueta?etiqueta(v):v)}</option>`).join('');
+      if(valores.includes(actual)) sel.value = actual;
+    };
+    const quienDe = p => (p.quien||'').trim();
+    const cliDe = p => (p.proyecto||p.cliente||'').trim();
+    const nombreQuien = {};
+    puntos.forEach(p=>{ if(quienDe(p)) nombreQuien[quienDe(p)] = p.quien_nombre||quienDe(p); });
+    llenar('mapaFiltroQuien', Object.keys(nombreQuien).sort((a,b)=>nombreQuien[a].localeCompare(nombreQuien[b])), v=>nombreQuien[v]+(nombreQuien[v]!==v?' ('+v+')':''), 'Quién lo instaló: todos');
+    llenar('mapaFiltroRol', [...new Set(puntos.map(p=>p.rol).filter(Boolean))].sort(), v=>_MAPA_ROLES[v]||v, 'Tipo de usuario: todos');
+    llenar('mapaFiltroCli', [...new Set(puntos.map(cliDe).filter(Boolean))].sort((a,b)=>a.localeCompare(b)), null, 'Cliente / proyecto: todos');
+    const fQuien = document.getElementById('mapaFiltroQuien')?.value || '';
+    const fRol = document.getElementById('mapaFiltroRol')?.value || '';
+    const fCli = document.getElementById('mapaFiltroCli')?.value || '';
+    if(fQuien) puntos = puntos.filter(p=>quienDe(p)===fQuien);
+    if(fRol) puntos = puntos.filter(p=>p.rol===fRol);
+    if(fCli) puntos = puntos.filter(p=>cliDe(p)===fCli);
+
     const selectProd = document.getElementById('mapaFiltroProducto');
     if(selectProd){
       const actual = selectProd.value;
@@ -2445,8 +2483,8 @@ async function cargarMapaActividad(){
       selectProd.innerHTML = '<option value="">Todos los productos</option>' +
         productosUnicos.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('');
       if(productosUnicos.includes(actual)) selectProd.value = actual;
-      const pi = document.getElementById('mapaProdInput'); if(pi && document.activeElement!==pi) pi.value = selectProd.value;
     }
+    ['Prod','Quien','Cli'].forEach(_mapaComboSync);
     const filtroProd = selectProd?.value || '';
     const puntosTodos = puntos;
     if(filtroProd) puntos = puntos.filter(p=>(p.producto||p.titulo||'—').trim()===filtroProd);
