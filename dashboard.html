@@ -1322,7 +1322,7 @@
     <div class="panel" id="panel-mapa">
       <div class="pcard">
         <style>
-          .mapa-barra{display:grid;grid-template-columns:minmax(220px,2fr) minmax(160px,1fr) 150px 150px;gap:10px;margin-bottom:10px;}
+          .mapa-barra{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:10px;}
           .mapa-barra .inp{width:100% !important;font-size:13px;}
           .mapa-fila2{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
           .mapa-cuerpo{display:grid;grid-template-columns:1fr 270px;gap:14px;align-items:start;}
@@ -1334,7 +1334,7 @@
           .mapa-leg-item.sel{background:#EFF6FF;font-weight:700;}
           .mapa-leg-item .n{margin-left:auto;font-size:11px;color:#64748B;background:#F1F5F9;border-radius:10px;padding:1px 8px;flex-shrink:0;}
           .mapa-leg-item .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
-          @media(max-width:900px){.mapa-barra{grid-template-columns:1fr 1fr;}.mapa-cuerpo{grid-template-columns:1fr;}.mapa-lateral{height:240px;order:2;}}
+          @media(max-width:900px){.mapa-cuerpo{grid-template-columns:1fr;}.mapa-lateral{height:240px;order:2;}}
         </style>
         <div style="margin-bottom:14px;">
           <h2 class="!font-bold !text-[20px] !tracking-[-0.01em] !m-[0]">🗺️ Mapa de actividad</h2>
@@ -1346,9 +1346,20 @@
             <div id="mapaBuscarLista" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:1000;background:white;border:1.5px solid #E2E8F0;border-radius:10px;margin-top:4px;max-height:260px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.15);"></div>
           </div>
           <div class="!relative">
-            <input type="text" id="mapaProdInput" placeholder="Todos los productos" autocomplete="off" class="inp" oninput="_mapaProdBuscar()" onfocus="_mapaProdBuscar(true)">
+            <input type="text" id="mapaProdInput" placeholder="Todos los productos" autocomplete="off" class="inp" oninput="_mapaComboBuscar('Prod')" onfocus="_mapaComboBuscar('Prod',true)">
             <div id="mapaProdLista" style="display:none;position:absolute;top:100%;left:0;right:0;min-width:240px;z-index:1000;background:white;border:1.5px solid #E2E8F0;border-radius:10px;margin-top:4px;max-height:280px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.15);"></div>
-            <select id="mapaFiltroProducto" onchange="cargarMapaActividad()" style="display:none;"><option value="">Todos los productos</option></select>
+            <select id="mapaFiltroProducto" onchange="cargarMapaActividad()" style="display:none;"><option value=""></option></select>
+          </div>
+          <div class="!relative">
+            <input type="text" id="mapaQuienInput" placeholder="Quién lo instaló: todos" autocomplete="off" class="inp" oninput="_mapaComboBuscar('Quien')" onfocus="_mapaComboBuscar('Quien',true)">
+            <div id="mapaQuienLista" style="display:none;position:absolute;top:100%;left:0;right:0;min-width:240px;z-index:1000;background:white;border:1.5px solid #E2E8F0;border-radius:10px;margin-top:4px;max-height:280px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.15);"></div>
+            <select id="mapaFiltroQuien" onchange="cargarMapaActividad()" style="display:none;"><option value=""></option></select>
+          </div>
+          <select id="mapaFiltroRol" onchange="cargarMapaActividad()" class="inp"><option value="">Tipo de usuario: todos</option></select>
+          <div class="!relative">
+            <input type="text" id="mapaCliInput" placeholder="Cliente / proyecto: todos" autocomplete="off" class="inp" oninput="_mapaComboBuscar('Cli')" onfocus="_mapaComboBuscar('Cli',true)">
+            <div id="mapaCliLista" style="display:none;position:absolute;top:100%;left:0;right:0;min-width:240px;z-index:1000;background:white;border:1.5px solid #E2E8F0;border-radius:10px;margin-top:4px;max-height:280px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.15);"></div>
+            <select id="mapaFiltroCli" onchange="cargarMapaActividad()" style="display:none;"><option value=""></option></select>
           </div>
           <input type="date" id="mapaFiltroDesde" onchange="cargarMapaActividad()" class="inp" title="Desde">
           <input type="date" id="mapaFiltroHasta" onchange="cargarMapaActividad()" class="inp" title="Hasta">
@@ -1358,7 +1369,7 @@
             <input type="checkbox" id="mapaSoloActivos" checked onchange="cargarMapaActividad()">
             Ocultar retirados
           </label>
-          <button onclick="document.getElementById('mapaFiltroDesde').value='';document.getElementById('mapaFiltroHasta').value='';document.getElementById('mapaBuscarPunto').value='';document.getElementById('mapaFiltroProducto').value='';document.getElementById('mapaProdInput').value='';cargarMapaActividad();" class="btn-sm ![background:#F1F5F9] !text-[#475569]">✕ Limpiar filtros</button>
+          <button onclick="_mapaLimpiarFiltros()" class="btn-sm ![background:#F1F5F9] !text-[#475569]">✕ Limpiar filtros</button>
           <div id="mapaContador" style="font-size:12px;color:#64748B;margin-left:auto;font-weight:600;"></div>
         </div>
         <div id="mapaActividadLoading" style="text-align:center;padding:60px;color:#94A3B8;font-size:13px;">Cargando mapa…</div>
@@ -4376,7 +4387,7 @@
 
 
 <script src="js/modulos/base.js?v=8"></script>
-<script src="js/modulos/datos.js?v=25"></script>
+<script src="js/modulos/datos.js?v=26"></script>
 <script src="js/modulos/panel_productos.js?v=10"></script>
 <script src="js/modulos/proveedores.js?v=25"></script>
 <script src="js/modulos/solicitudes.js?v=16"></script>
