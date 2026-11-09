@@ -333,12 +333,29 @@ if ($method === 'GET' && $action === 'puntos_mapa') {
             'titulo' => '📡 ONT ' . ($r['modelo'] ?: '') . ' — ' . ($r['cliente_nombre'] ?: ''),
             'producto' => 'ONT ' . ($r['modelo'] ?: 'genérica'),
             'sn' => $r['sn'], 'quien' => $r['tecnico_instalacion'],
+            'cliente' => $r['cliente_nombre'],
             'destino' => $r['cliente_direccion'],
             'fecha' => $r['fecha_instalacion'], 'detalle' => 'Cliente: ' . ($r['cliente_nombre'] ?: '—'),
         ];
     }, $stmtO->fetchAll());
 
-    responder(['puntos' => array_merge($gastos, $onts)]);
+    // Tipo de usuario (rol) y nombre de quien lo hizo, para poder filtrar en el mapa.
+    $puntos = array_merge($gastos, $onts);
+    $quienes = array_values(array_unique(array_filter(array_map(fn($x) => $x['quien'] ?? '', $puntos))));
+    $infoU = [];
+    if ($quienes) {
+        $in = implode(',', array_fill(0, count($quienes), '?'));
+        $stU = $pdo->prepare("SELECT usuario, rol, TRIM(CONCAT(COALESCE(nombre,''),' ',COALESCE(apellido,''))) AS nombre FROM usuarios WHERE usuario IN ($in)");
+        $stU->execute($quienes);
+        foreach ($stU->fetchAll() as $u) $infoU[$u['usuario']] = $u;
+    }
+    foreach ($puntos as &$pt) {
+        $u = $infoU[$pt['quien'] ?? ''] ?? null;
+        $pt['rol'] = $u['rol'] ?? '';
+        $pt['quien_nombre'] = ($u && $u['nombre'] !== '') ? $u['nombre'] : ($pt['quien'] ?? '');
+    }
+    unset($pt);
+    responder(['puntos' => $puntos]);
 }
 
 /* ══ MARCAR RETIRADO — algo instalado (mufla, caja, etc.) ya no está ahí:
