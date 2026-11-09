@@ -1164,6 +1164,13 @@
           <input type="date" id="filtroSegFechaDesde" onchange="renderSeguimiento()" class="inp" style="width:auto;" title="Desde">
           <input type="date" id="filtroSegFechaHasta" onchange="renderSeguimiento()" class="inp" style="width:auto;" title="Hasta">
           <button onclick="_limpiarFiltrosSeg()" class="btn-sm ![background:#F1F5F9] !text-[#64748B]">✕ Limpiar filtros</button>
+          <span style="margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:#64748B;">
+            <span id="segInfoCantidad"></span>
+            <label for="segPorPagina">Mostrar</label>
+            <select id="segPorPagina" onchange="_segCambiarCantidad(this.value)" class="inp" style="width:auto;padding:6px 10px;">
+              <option value="25">25</option><option value="50">50</option><option value="100">100</option><option value="0">Todos</option>
+            </select>
+          </span>
         </div>
 
         <div class="tbl-wrap">
@@ -4349,8 +4356,8 @@
 
 
 <script src="js/modulos/base.js?v=8"></script>
-<script src="js/modulos/datos.js?v=21"></script>
-<script src="js/modulos/panel_productos.js?v=8"></script>
+<script src="js/modulos/datos.js?v=22"></script>
+<script src="js/modulos/panel_productos.js?v=9"></script>
 <script src="js/modulos/proveedores.js?v=25"></script>
 <script src="js/modulos/solicitudes.js?v=16"></script>
 <script src="js/modulos/historial.js?v=20"></script>
