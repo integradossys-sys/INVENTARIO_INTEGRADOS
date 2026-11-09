@@ -11,6 +11,9 @@
 <script src="vendor/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/app.css?v=18">
@@ -1321,34 +1324,52 @@
     <!-- ══ MAPA DE ACTIVIDAD ══ -->
     <div class="panel" id="panel-mapa">
       <div class="pcard">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
-          <div>
-            <h2 class="!font-bold !text-[20px] !tracking-[-0.01em] !m-[0]">🗺️ Mapa de actividad</h2>
-            <p class="!text-[12px] !text-[#94A3B8] !mt-[3px]">Gastos e instalaciones con ubicación GPS guardada.</p>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-            <div class="!relative">
-              <input type="text" id="mapaBuscarPunto" placeholder="🔍 Buscar producto, cliente, quién lo hizo…" oninput="_filtrarMapaActividad()" class="inp" style="width:260px;font-size:13px;">
-              <div id="mapaBuscarLista" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:1000;background:white;border:1.5px solid #E2E8F0;border-radius:10px;margin-top:4px;max-height:260px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.15);"></div>
-            </div>
-            <select id="mapaFiltroProducto" onchange="cargarMapaActividad()" class="inp" style="width:180px;font-size:13px;">
-              <option value="">Todos los productos</option>
-            </select>
-            <input type="date" id="mapaFiltroDesde" onchange="cargarMapaActividad()" class="inp" style="width:145px;font-size:13px;" title="Desde">
-            <input type="date" id="mapaFiltroHasta" onchange="cargarMapaActividad()" class="inp" style="width:145px;font-size:13px;" title="Hasta">
-            <label class="!flex !items-center !gap-[6px] !text-[12px] !text-[#475569] !cursor-pointer !p-[0_8px]">
-              <input type="checkbox" id="mapaSoloActivos" checked onchange="cargarMapaActividad()">
-              Solo activos
-            </label>
-            <button onclick="document.getElementById('mapaFiltroDesde').value='';document.getElementById('mapaFiltroHasta').value='';document.getElementById('mapaBuscarPunto').value='';document.getElementById('mapaFiltroProducto').value='';cargarMapaActividad();" class="btn-sm ![background:#F1F5F9] !text-[#475569]">✕ Limpiar</button>
-          </div>
+        <style>
+          .mapa-barra{display:grid;grid-template-columns:minmax(220px,2fr) minmax(160px,1fr) 150px 150px;gap:10px;margin-bottom:10px;}
+          .mapa-barra .inp{width:100% !important;font-size:13px;}
+          .mapa-fila2{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+          .mapa-cuerpo{display:grid;grid-template-columns:1fr 270px;gap:14px;align-items:start;}
+          .mapa-lateral{border:1.5px solid #E2E8F0;border-radius:14px;height:560px;display:flex;flex-direction:column;overflow:hidden;background:#fff;}
+          .mapa-lateral-h{padding:10px 12px;border-bottom:1px solid #F1F5F9;font-size:12px;font-weight:700;color:#475569;display:flex;justify-content:space-between;align-items:center;}
+          #mapaLeyenda{overflow-y:auto;flex:1;padding:4px;}
+          .mapa-leg-item{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:8px;cursor:pointer;font-size:12px;color:#334155;}
+          .mapa-leg-item:hover{background:#F8FAFC;}
+          .mapa-leg-item.sel{background:#EFF6FF;font-weight:700;}
+          .mapa-leg-item .n{margin-left:auto;font-size:11px;color:#64748B;background:#F1F5F9;border-radius:10px;padding:1px 8px;flex-shrink:0;}
+          .mapa-leg-item .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+          @media(max-width:900px){.mapa-barra{grid-template-columns:1fr 1fr;}.mapa-cuerpo{grid-template-columns:1fr;}.mapa-lateral{height:240px;order:2;}}
+        </style>
+        <div style="margin-bottom:14px;">
+          <h2 class="!font-bold !text-[20px] !tracking-[-0.01em] !m-[0]">🗺️ Mapa de actividad</h2>
+          <p class="!text-[12px] !text-[#94A3B8] !mt-[3px]">Gastos e instalaciones con ubicación GPS guardada.</p>
         </div>
-        <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:14px;flex-wrap:wrap;">
-          <div id="mapaLeyenda" style="display:flex;gap:14px;flex-wrap:wrap;flex:1;"></div>
-          <div id="mapaContador" style="font-size:12px;color:#94A3B8;white-space:nowrap;"></div>
+        <div class="mapa-barra">
+          <div class="!relative">
+            <input type="text" id="mapaBuscarPunto" placeholder="🔍 Buscar producto, cliente, quién lo hizo…" oninput="_filtrarMapaActividad()" class="inp">
+            <div id="mapaBuscarLista" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:1000;background:white;border:1.5px solid #E2E8F0;border-radius:10px;margin-top:4px;max-height:260px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.15);"></div>
+          </div>
+          <select id="mapaFiltroProducto" onchange="cargarMapaActividad()" class="inp">
+            <option value="">Todos los productos</option>
+          </select>
+          <input type="date" id="mapaFiltroDesde" onchange="cargarMapaActividad()" class="inp" title="Desde">
+          <input type="date" id="mapaFiltroHasta" onchange="cargarMapaActividad()" class="inp" title="Hasta">
+        </div>
+        <div class="mapa-fila2">
+          <label class="!flex !items-center !gap-[6px] !text-[12px] !text-[#475569] !cursor-pointer">
+            <input type="checkbox" id="mapaSoloActivos" checked onchange="cargarMapaActividad()">
+            Ocultar retirados
+          </label>
+          <button onclick="document.getElementById('mapaFiltroDesde').value='';document.getElementById('mapaFiltroHasta').value='';document.getElementById('mapaBuscarPunto').value='';document.getElementById('mapaFiltroProducto').value='';cargarMapaActividad();" class="btn-sm ![background:#F1F5F9] !text-[#475569]">✕ Limpiar filtros</button>
+          <div id="mapaContador" style="font-size:12px;color:#64748B;margin-left:auto;font-weight:600;"></div>
         </div>
         <div id="mapaActividadLoading" style="text-align:center;padding:60px;color:#94A3B8;font-size:13px;">Cargando mapa…</div>
-        <div id="mapaActividadContenedor" style="height:560px;border-radius:14px;overflow:hidden;border:1.5px solid #E2E8F0;display:none;"></div>
+        <div class="mapa-cuerpo" id="mapaCuerpo" style="display:none;">
+          <div id="mapaActividadContenedor" style="height:560px;border-radius:14px;overflow:hidden;border:1.5px solid #E2E8F0;"></div>
+          <div class="mapa-lateral">
+            <div class="mapa-lateral-h"><span>Productos en el mapa</span><span id="mapaLegTotal" style="font-weight:500;color:#94A3B8;"></span></div>
+            <div id="mapaLeyenda"></div>
+          </div>
+        </div>
         <div id="mapaActividadVacio" style="display:none;text-align:center;padding:60px;color:#94A3B8;font-size:13px;">
           Todavía no hay puntos con ubicación GPS guardada en este rango de fechas.
         </div>
@@ -4356,7 +4377,7 @@
 
 
 <script src="js/modulos/base.js?v=8"></script>
-<script src="js/modulos/datos.js?v=22"></script>
+<script src="js/modulos/datos.js?v=23"></script>
 <script src="js/modulos/panel_productos.js?v=10"></script>
 <script src="js/modulos/proveedores.js?v=25"></script>
 <script src="js/modulos/solicitudes.js?v=16"></script>
