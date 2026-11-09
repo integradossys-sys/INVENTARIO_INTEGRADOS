@@ -13,6 +13,23 @@ let _fibraCarretesPorItem = {};      // cache { [segId]: [{id,codigo,metros_disp
 let _equiposSeleccionadosDespacho = {}; // { [segId]: [equipo_id, ...] } — selección manual de unidad(es) OLT/Mikrotik al despachar una solicitud "Pedir equipos"
 let _equiposDisponiblesPorItem = {};    // cache { [segId]: [{id,marca,modelo,sn,mac,sede}] }
 let _tabSeg = 'todos';
+// Cuántos envíos mostrar a la vez en Seguimiento (0 = todos). "Ver más" suma otro tanto.
+let _segPorPagina = 25;
+let _segLimite = 25;
+function _segCambiarCantidad(v){
+  _segPorPagina = parseInt(v,10)||0;
+  _segLimite = _segPorPagina;
+  try{ localStorage.setItem('segPorPagina', String(_segPorPagina)); }catch(e){}
+  renderSeguimiento();
+}
+function _segVerMas(){
+  _segLimite += (_segPorPagina||25);
+  renderSeguimiento();
+}
+try{
+  const g = localStorage.getItem('segPorPagina');
+  if(g!==null && [0,25,50,100].includes(parseInt(g,10))){ _segPorPagina=parseInt(g,10); _segLimite=_segPorPagina; }
+}catch(e){}
 
 // Id de grupo de un envío en Seguimiento: pedido agrupado, "pag_...", etiqueta "Lote: X" o,
 // para asignaciones directas hechas una tras otra (ONT + drop + conectores) sin lote, la misma
@@ -34,6 +51,7 @@ async function _recargarSeguimiento(){
 
 function setTabSeg(t){
   _tabSeg=t;
+  _segLimite=_segPorPagina;
   ['todos','aprobado','en_camino','recibido'].forEach(id=>{
     const el=document.getElementById('tabSeg_'+id);
     if(el) el.classList.toggle('active',id===t);
@@ -64,6 +82,7 @@ function _contarUnidadesSeg(lista){
   return new Set(lista.map(s=>_grupoSegId(s)||('i'+s.id))).size;
 }
 function _limpiarFiltrosSeg(){
+  _segLimite=_segPorPagina;
   const b=document.getElementById('filtroSegBuscar'); if(b) b.value='';
   const fd=document.getElementById('filtroSegFechaDesde'); if(fd) fd.value='';
   const fh=document.getElementById('filtroSegFechaHasta'); if(fh) fh.value='';
@@ -107,6 +126,7 @@ function renderSeguimiento(){
 
   if(!items.length){
     tbody.innerHTML='<tr><td class="!p-[32px] !text-center !text-[#94A3B8] !text-[13px]" colspan="9">Sin envíos que coincidan con los filtros.</td></tr>';
+    const _i0=document.getElementById('segInfoCantidad'); if(_i0) _i0.textContent='';
     return;
   }
   const estadoInfo = {
@@ -153,7 +173,9 @@ function renderSeguimiento(){
     }
   });
 
-  tbody.innerHTML = gruposSeg.map(s=>{
+  const _totalSeg = gruposSeg.length;
+  const _visiblesSeg = _segLimite>0 ? gruposSeg.slice(0,_segLimite) : gruposSeg;
+  tbody.innerHTML = _visiblesSeg.map(s=>{
     const ei = estadoInfo[s.estado] || {label:s.estado,cls:'badge-gray',icon:'•'};
     const rol = sesion.rol;
     let acciones = '';
@@ -437,6 +459,14 @@ function renderSeguimiento(){
       <td>${acciones}</td>
     </tr>`;
   }).join('');
+  // Pie: "Mostrando X de Y" + botón "Ver más"
+  const _selSeg = document.getElementById('segPorPagina');
+  if(_selSeg && _selSeg.value!==String(_segPorPagina)) _selSeg.value=String(_segPorPagina);
+  const _infoSeg = document.getElementById('segInfoCantidad');
+  if(_infoSeg) _infoSeg.textContent = `Mostrando ${_visiblesSeg.length} de ${_totalSeg}`;
+  if(_visiblesSeg.length < _totalSeg){
+    tbody.insertAdjacentHTML('beforeend', `<tr><td colspan="9" style="text-align:center;padding:14px;"><button onclick="_segVerMas()" class="btn-sm ![background:#EFF6FF] !text-[#1D4ED8]">Ver más (${Math.min(_segPorPagina||25,_totalSeg-_visiblesSeg.length)} de ${_totalSeg-_visiblesSeg.length} restantes)</button></td></tr>`);
+  }
 }
 
 let _usuariosTransp = [];
@@ -2267,7 +2297,7 @@ let _mapaActividadInstancia = null;
 let _mapaPuntosCache = [];
 let _mapaActividadMarcadores = [];
 // Paleta de colores distinguibles para diferenciar productos en el mapa.
-const _mapaPaletaColores = ['#E24B4A','#0C6EDE','#16A871','#F59E0B','#8B5CF6','#EC4899','#06B6D4','#F97316','#84CC16','#6366F1','#14B8A6','#D946EF'];
+const _mapaPaletaColores = ['#E24B4A','#0C6EDE','#16A871','#F59E0B','#8B5CF6','#EC4899','#06B6D4','#F97316','#84CC16','#6366F1','#14B8A6','#D946EF','#A16207','#0F766E','#BE123C','#1D4ED8','#4D7C0F','#7E22CE','#C2410C','#0E7490','#475569','#DB2777'];
 const _mapaColorPorProducto = {};
 function _colorParaProducto(nombre){
   const clave = (nombre||'—').trim();
@@ -2277,6 +2307,12 @@ function _colorParaProducto(nombre){
   const idx = Object.keys(_mapaColorPorProducto).length % _mapaPaletaColores.length;
   _mapaColorPorProducto[clave] = _mapaPaletaColores[idx];
   return _mapaColorPorProducto[clave];
+}
+function _mapaElegirProducto(nombre){
+  const sel = document.getElementById('mapaFiltroProducto');
+  if(!sel) return;
+  sel.value = (sel.value===nombre) ? '' : nombre;
+  cargarMapaActividad();
 }
 function _filtrarMapaActividad(){
   const q = (document.getElementById('mapaBuscarPunto')?.value||'').toLowerCase().trim();
@@ -2314,8 +2350,13 @@ function _irAPuntoMapa(idx){
   const marcador = _mapaActividadMarcadores[idx];
   if(!p || !marcador || !_mapaActividadInstancia) return;
   document.getElementById('mapaBuscarLista').style.display='none';
-  _mapaActividadInstancia.setView([p.lat, p.lng], 17);
-  setTimeout(()=>marcador.openPopup(), 300);
+  const grupo = _mapaActividadInstancia._marcadores;
+  if(grupo && typeof grupo.zoomToShowLayer==='function'){
+    grupo.zoomToShowLayer(marcador, ()=>marcador.openPopup());
+  } else {
+    _mapaActividadInstancia.setView([p.lat, p.lng], 17);
+    setTimeout(()=>marcador.openPopup(), 300);
+  }
 }
 document.addEventListener('click', function(e){
   const cont = document.getElementById('mapaBuscarLista');
@@ -2380,6 +2421,7 @@ async function cargarMapaActividad(){
       if(productosUnicos.includes(actual)) selectProd.value = actual;
     }
     const filtroProd = selectProd?.value || '';
+    const puntosTodos = puntos;
     if(filtroProd) puntos = puntos.filter(p=>(p.producto||p.titulo||'—').trim()===filtroProd);
 
     if(!puntos.length){
@@ -2387,33 +2429,35 @@ async function cargarMapaActividad(){
       if(contador) contador.textContent = '';
       return;
     }
+    const cuerpo = document.getElementById('mapaCuerpo');
+    if(cuerpo) cuerpo.style.display='grid';
     cont.style.display='block';
     if(contador) contador.textContent = `${puntos.length} punto${puntos.length!==1?'s':''} en el mapa`;
     _mapaPuntosCache = puntos;
 
-    // Leyenda dinámica: un color por cada producto distinto que aparezca.
+    // Panel lateral: productos con su cantidad de puntos (los más usados primero).
+    // Tocar uno filtra el mapa por ese producto; tocarlo otra vez lo quita.
     const leyenda = document.getElementById('mapaLeyenda');
     if(leyenda){
-      const vistos = new Set();
-      const items = [];
-      puntos.forEach(p=>{
-        const clave = (p.producto || p.titulo || '—').trim();
-        if(vistos.has(clave)) return;
-        vistos.add(clave);
-        items.push({clave, color: _colorParaProducto(clave)});
-      });
-      leyenda.innerHTML = items.map(it=>`
-        <div class="!flex !items-center !gap-[6px] !text-[12px] !text-[#64748B]">
-          <span style="width:12px;height:12px;border-radius:50%;background:${it.color};display:inline-block;flex-shrink:0;"></span>
-          ${esc(it.clave)}
+      const cuenta = {};
+      puntosTodos.forEach(p=>{ const c=(p.producto||p.titulo||'—').trim(); cuenta[c]=(cuenta[c]||0)+1; });
+      const items = Object.keys(cuenta).sort((a,b)=>cuenta[b]-cuenta[a]||a.localeCompare(b));
+      leyenda.innerHTML = items.map(c=>`
+        <div class="mapa-leg-item${c===filtroProd?' sel':''}" data-prod="${esc(c)}" onclick="_mapaElegirProducto(this.dataset.prod)" title="${esc(c)}">
+          <span style="width:12px;height:12px;border-radius:50%;background:${_colorParaProducto(c)};display:inline-block;flex-shrink:0;"></span>
+          <span class="t">${esc(c)}</span><span class="n">${cuenta[c]}</span>
         </div>`).join('');
+      const tot = document.getElementById('mapaLegTotal');
+      if(tot) tot.textContent = items.length+' tipo'+(items.length!==1?'s':'');
     }
 
     // Crear el mapa una sola vez; si ya existe, solo se actualizan los marcadores
     if(!_mapaActividadInstancia){
       _mapaActividadInstancia = L.map('mapaActividadContenedor');
       agregarCapaBaseMapa(_mapaActividadInstancia);
-      _mapaActividadInstancia._marcadores = L.layerGroup().addTo(_mapaActividadInstancia);
+      _mapaActividadInstancia._marcadores = (typeof L.markerClusterGroup==='function'
+        ? L.markerClusterGroup({maxClusterRadius:40, showCoverageOnHover:false, spiderfyOnMaxZoom:true})
+        : L.layerGroup()).addTo(_mapaActividadInstancia);
     } else {
       _mapaActividadInstancia._marcadores.clearLayers();
       setTimeout(()=>_mapaActividadInstancia.invalidateSize(), 50);
