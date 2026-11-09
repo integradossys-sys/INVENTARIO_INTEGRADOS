@@ -1496,7 +1496,7 @@ let _modoEnvio = false;
 let _carritoEnvio = {}; // { ref: { p, cantidad } }
 
 // Descarga a Excel lo que hay en "Productos en stock" (respeta lo que se escribió en el buscador).
-function exportarProductosStockExcel(){
+async function exportarProductosStockExcel(){
   if(typeof XLSX==='undefined'){ toast('No se pudo cargar el generador de Excel. Recarga la página.','error'); return; }
   const productos = getProductos();
   const q = (document.getElementById('buscar')?.value||'').toLowerCase();
@@ -1535,6 +1535,20 @@ function exportarProductosStockExcel(){
     return f;
   };
   const qq = q.trim();
+  // Para quien no es admin: cantidad real de OLT y equipos que tiene él / su oficina
+  // (el servidor ya devuelve solo los de su sede, sin asignar o asignados a él).
+  let misOlts = null, misEq = null;
+  if(!esAdmin){
+    try{
+      const [ro, rm] = await Promise.all([
+        fetch('api/equipos.php?action=listar_olts',{credentials:'same-origin'}).then(r=>r.json()),
+        fetch('api/equipos.php?action=listar_mikrotiks',{credentials:'same-origin'}).then(r=>r.json())
+      ]);
+      misOlts = Array.isArray(ro) ? ro.filter(o=>(o.estado||'activo')==='activo').length : 0;
+      misEq = {};
+      if(Array.isArray(rm)) rm.filter(m=>['activo','recuperado'].includes(m.estado||'activo')).forEach(m=>{ const t=m.tipo_equipo||'Mikrotik'; misEq[t]=(misEq[t]||0)+1; });
+    }catch(e){ misOlts = null; misEq = null; }
+  }
   try{
     (_modelosOnt||[]).filter(m=>!qq || (m.nombre||'').toLowerCase().includes(qq) || 'ont'.includes(qq) || (m.marca||'').toLowerCase().includes(qq)).forEach(m=>{
       const c = _ontStockMap[String(m.nombre||'').toLowerCase().trim()] || 0;
@@ -1542,8 +1556,8 @@ function exportarProductosStockExcel(){
     });
   }catch(e){}
   try{
-    if((_oltsStockData||[]).length && (!qq || 'olt'.includes(qq))) filas.push(extra('OLT', 'OLT', 'Unidades', _oltsStockData.length, null, ''));
-    (_equiposStockData||[]).filter(t=>!qq || (t.tipo||'').toLowerCase().includes(qq)).forEach(t=> filas.push(extra('EQ', t.tipo, 'Unidades', t.total||0, null, '')));
+    if((_oltsStockData||[]).length && (!qq || 'olt'.includes(qq))) filas.push(extra('OLT', 'OLT', 'Unidades', _oltsStockData.length, esAdmin ? null : misOlts, ''));
+    (_equiposStockData||[]).filter(t=>!qq || (t.tipo||'').toLowerCase().includes(qq)).forEach(t=> filas.push(extra('EQ', t.tipo, 'Unidades', t.total||0, esAdmin ? null : (misEq ? (misEq[t.tipo]||0) : null), '')));
   }catch(e){}
   try{
     const mis = {};
