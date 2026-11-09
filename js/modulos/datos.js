@@ -2455,9 +2455,7 @@ async function cargarMapaActividad(){
     if(!_mapaActividadInstancia){
       _mapaActividadInstancia = L.map('mapaActividadContenedor');
       agregarCapaBaseMapa(_mapaActividadInstancia);
-      _mapaActividadInstancia._marcadores = (typeof L.markerClusterGroup==='function'
-        ? L.markerClusterGroup({maxClusterRadius:40, showCoverageOnHover:false, spiderfyOnMaxZoom:true})
-        : L.layerGroup()).addTo(_mapaActividadInstancia);
+      _mapaActividadInstancia._marcadores = L.layerGroup().addTo(_mapaActividadInstancia);
     } else {
       _mapaActividadInstancia._marcadores.clearLayers();
       setTimeout(()=>_mapaActividadInstancia.invalidateSize(), 50);
