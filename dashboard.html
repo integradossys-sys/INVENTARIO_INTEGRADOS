@@ -1345,9 +1345,11 @@
             <input type="text" id="mapaBuscarPunto" placeholder="🔍 Buscar producto, cliente, quién lo hizo…" oninput="_filtrarMapaActividad()" class="inp">
             <div id="mapaBuscarLista" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:1000;background:white;border:1.5px solid #E2E8F0;border-radius:10px;margin-top:4px;max-height:260px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.15);"></div>
           </div>
-          <select id="mapaFiltroProducto" onchange="cargarMapaActividad()" class="inp">
-            <option value="">Todos los productos</option>
-          </select>
+          <div class="!relative">
+            <input type="text" id="mapaProdInput" placeholder="Todos los productos" autocomplete="off" class="inp" oninput="_mapaProdBuscar()" onfocus="_mapaProdBuscar(true)">
+            <div id="mapaProdLista" style="display:none;position:absolute;top:100%;left:0;right:0;min-width:240px;z-index:1000;background:white;border:1.5px solid #E2E8F0;border-radius:10px;margin-top:4px;max-height:280px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.15);"></div>
+            <select id="mapaFiltroProducto" onchange="cargarMapaActividad()" style="display:none;"><option value="">Todos los productos</option></select>
+          </div>
           <input type="date" id="mapaFiltroDesde" onchange="cargarMapaActividad()" class="inp" title="Desde">
           <input type="date" id="mapaFiltroHasta" onchange="cargarMapaActividad()" class="inp" title="Hasta">
         </div>
@@ -1356,7 +1358,7 @@
             <input type="checkbox" id="mapaSoloActivos" checked onchange="cargarMapaActividad()">
             Ocultar retirados
           </label>
-          <button onclick="document.getElementById('mapaFiltroDesde').value='';document.getElementById('mapaFiltroHasta').value='';document.getElementById('mapaBuscarPunto').value='';document.getElementById('mapaFiltroProducto').value='';cargarMapaActividad();" class="btn-sm ![background:#F1F5F9] !text-[#475569]">✕ Limpiar filtros</button>
+          <button onclick="document.getElementById('mapaFiltroDesde').value='';document.getElementById('mapaFiltroHasta').value='';document.getElementById('mapaBuscarPunto').value='';document.getElementById('mapaFiltroProducto').value='';document.getElementById('mapaProdInput').value='';cargarMapaActividad();" class="btn-sm ![background:#F1F5F9] !text-[#475569]">✕ Limpiar filtros</button>
           <div id="mapaContador" style="font-size:12px;color:#64748B;margin-left:auto;font-weight:600;"></div>
         </div>
         <div id="mapaActividadLoading" style="text-align:center;padding:60px;color:#94A3B8;font-size:13px;">Cargando mapa…</div>
@@ -4374,7 +4376,7 @@
 
 
 <script src="js/modulos/base.js?v=8"></script>
-<script src="js/modulos/datos.js?v=24"></script>
+<script src="js/modulos/datos.js?v=25"></script>
 <script src="js/modulos/panel_productos.js?v=10"></script>
 <script src="js/modulos/proveedores.js?v=25"></script>
 <script src="js/modulos/solicitudes.js?v=16"></script>
