@@ -1519,7 +1519,6 @@ function exportarProductosStockExcel(){
       f['Stock mínimo'] = min;
       f['Estado'] = estado;
     } else {
-      f['Disponible en almacén'] = almacen;
       f['Mi stock'] = cant(p, p.stockUsuario||0);
     }
     return f;
@@ -1531,7 +1530,7 @@ function exportarProductosStockExcel(){
       f['En almacén'] = almacen||0; f['♻️ Recuperado'] = ''; f['En manos de técnicos'] = ''; f['Stock mínimo'] = '';
       f['Estado'] = (almacen||0)<=0 ? 'Sin stock' : 'OK';
     } else {
-      f['Disponible en almacén'] = almacen==null ? '' : almacen; f['Mi stock'] = miStock==null ? '' : miStock;
+      f['Mi stock'] = miStock==null ? '' : miStock;
     }
     return f;
   };
