@@ -277,8 +277,8 @@ async function init(){
     const bam=document.getElementById('btnAsignarMultiple');if(bam)bam.style.display=(sesion?.rol==='distribuidor')?'none':'inline-flex';
   }
 
-  // Excel
-  if(tienePermiso('ver_reportes')){
+  // Excel general del sistema: solo superadmin y distribuidor
+  if(rol==='superadmin'||rol==='distribuidor'){
     const bEx=document.getElementById('btnExcel');if(bEx)bEx.style.display='inline-flex';
   }
   } catch(errMenu) {
