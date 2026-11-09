@@ -2336,7 +2336,7 @@ function _mapaComboSync(k){
   if(inp && sel && document.activeElement!==inp) inp.value = sel.value ? ([...sel.options].find(o=>o.value===sel.value)?.textContent||sel.value) : '';
 }
 function _mapaLimpiarFiltros(){
-  ['mapaFiltroDesde','mapaFiltroHasta','mapaBuscarPunto','mapaFiltroRol','mapaFiltroProducto','mapaFiltroQuien','mapaFiltroCli'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
+  ['mapaFiltroDesde','mapaFiltroHasta','mapaFiltroRol','mapaFiltroProducto','mapaFiltroQuien','mapaFiltroCli'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
   ['Prod','Quien','Cli'].forEach(k=>{ const i=document.getElementById('mapa'+k+'Input'); if(i) i.value=''; });
   cargarMapaActividad();
 }
