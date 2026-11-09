@@ -2308,10 +2308,36 @@ function _colorParaProducto(nombre){
   _mapaColorPorProducto[clave] = _mapaPaletaColores[idx];
   return _mapaColorPorProducto[clave];
 }
+function _mapaProdBuscar(todos){
+  const inp = document.getElementById('mapaProdInput'), lista = document.getElementById('mapaProdLista'), sel = document.getElementById('mapaFiltroProducto');
+  if(!inp||!lista||!sel) return;
+  const q = todos ? '' : inp.value.toLowerCase().trim();
+  const ops = [...sel.options].filter(o=>o.value && (!q || o.value.toLowerCase().includes(q)));
+  const fila = (val, txt, extra)=>`<div data-v="${esc(val)}" onclick="_mapaProdPick(this.dataset.v)" style="padding:9px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid #F1F5F9;${extra||''}" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='white'">${esc(txt)}</div>`;
+  lista.innerHTML = fila('', '✕ Todos los productos', 'color:#64748B;font-weight:600;') +
+    (ops.length ? ops.map(o=>fila(o.value,o.value)).join('') : '<div class="!p-[12px] !text-[#94A3B8] !text-[13px] !text-center">Sin coincidencias.</div>');
+  lista.style.display='block';
+}
+function _mapaProdPick(v){
+  const sel = document.getElementById('mapaFiltroProducto'), inp = document.getElementById('mapaProdInput');
+  document.getElementById('mapaProdLista').style.display='none';
+  if(inp) inp.value = v;
+  if(sel){ sel.value = v; cargarMapaActividad(); }
+}
+document.addEventListener('click', function(e){
+  const l = document.getElementById('mapaProdLista'), i = document.getElementById('mapaProdInput');
+  if(l && i && !i.contains(e.target) && !l.contains(e.target)){
+    l.style.display='none';
+    const sel = document.getElementById('mapaFiltroProducto');
+    if(sel && !i.value.trim() && sel.value){ sel.value=''; cargarMapaActividad(); }
+    else if(sel) i.value = sel.value;
+  }
+});
 function _mapaElegirProducto(nombre){
   const sel = document.getElementById('mapaFiltroProducto');
   if(!sel) return;
   sel.value = (sel.value===nombre) ? '' : nombre;
+  const pi = document.getElementById('mapaProdInput'); if(pi) pi.value = sel.value;
   cargarMapaActividad();
 }
 function _filtrarMapaActividad(){
@@ -2419,6 +2445,7 @@ async function cargarMapaActividad(){
       selectProd.innerHTML = '<option value="">Todos los productos</option>' +
         productosUnicos.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('');
       if(productosUnicos.includes(actual)) selectProd.value = actual;
+      const pi = document.getElementById('mapaProdInput'); if(pi && document.activeElement!==pi) pi.value = selectProd.value;
     }
     const filtroProd = selectProd?.value || '';
     const puntosTodos = puntos;
