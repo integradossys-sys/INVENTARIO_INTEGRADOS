@@ -288,7 +288,7 @@ async function verDetallePedidoAgrupado(pedidoId) {
               ${cantTxt} <span class="!text-[11px] !font-normal !text-[#94A3B8]">${unidadTxt}</span>
               ${i.cantidad_aprobada!=null && i.cantidad_aprobada!=i.cantidad ? `<span class="!text-[11px] !text-[#B45309]"> → aprobado: ${cantAprobTxt}</span>` : ''}
             </div>
-            <span class="badge ${i.estado==='aprobada'?'badge-ok':i.estado==='rechazada'?'badge-danger':'badge-warn'}" style="font-size:10px;">${i.estado==='aprobada'?'✓ Aprobado':i.estado==='rechazada'?'✕ Rechazado':'Pendiente'}</span>
+            <span class="badge ${['aprobada','en_camino','recibida'].includes(i.estado)?'badge-ok':['rechazada','cancelada'].includes(i.estado)?'badge-danger':'badge-warn'}" style="font-size:10px;">${i.estado==='aprobada'?'✓ Aprobado':i.estado==='en_camino'?'🚚 En camino':i.estado==='recibida'?'📦 Recibido':i.estado==='rechazada'?'✕ Rechazado':i.estado==='cancelada'?'✕ Cancelado':'Pendiente'}</span>
           </div>
         </div>
         ${(i.estado==='rechazada' && i.motivo) ? `<div style="flex-basis:100%;margin-top:5px;font-size:11px;color:#DC2626;">↳ ${esc(i.motivo)}</div>` : ''}
@@ -333,8 +333,8 @@ async function verDetallePedidoAgrupado(pedidoId) {
       <div class="!mt-[12px] !p-[8px_12px] ![background:#EAF3DE] !rounded-[8px] !text-[12px] !text-[#166534] !font-semibold">
         ${items.every(i=>i.estado==='pendiente'||i.estado==='en_gestion')
           ? `Total solicitado: ${totalPedidoTxt(items,false)}`
-          : items.some(i=>i.estado==='aprobada')
-            ? `Total aprobado: ${totalPedidoTxt(items.filter(i=>i.estado==='aprobada'),true)}`
+          : items.some(i=>['aprobada','en_camino','recibida'].includes(i.estado))
+            ? `Total aprobado: ${totalPedidoTxt(items.filter(i=>['aprobada','en_camino','recibida'].includes(i.estado)),true)}`
             : 'Ningún producto aprobado: todo fue rechazado o cancelado.'}
       </div>`;
     modal.classList.add('open');
