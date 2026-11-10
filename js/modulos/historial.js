@@ -732,3 +732,8 @@ function renderHistorial(){
     </tr>`;
   }).join('');
 }
+function _histLimpiarFiltros(){
+  ['filtroFecha','filtroProducto','filtroUsuarioHist','filtroTipoUsuarioHist','filtroEnviadoPor'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  if(typeof setTabHistorial==='function') setTabHistorial('todos');
+  if(typeof _histFiltroCambio==='function') _histFiltroCambio();
+}
