@@ -69,7 +69,7 @@ function renderMisPedidos(){
         btnGestion = `<button onclick="abrirGestionPedido('${s.id}')" class="btn-sm ![background:#EAF3DE] !text-[#166534] !mt-[4px]">📋 Gestionar</button>`;
       return `<tr class="fade-row">
         <td>
-          <div class="!font-bold !text-[13px] !text-[#7C3AED]">📦 Pedido múltiple (${numItems} productos)</div>
+          <div class="!font-bold !text-[13px] !text-[#475569]">📦 Pedido múltiple (${numItems} productos)</div>
           ${btnDetalle}
         </td>
         <td style="font-weight:700;">${totalCant} <span class="!text-[11px] !font-normal !text-[#94A3B8]">uds. total</span></td>
@@ -520,9 +520,9 @@ function renderHistorial(){
       const esGastoGrp = !!h._esGastoGrupo;
       const iconoGrp = esGastoGrp ? '🔧' : '📦';
       const tituloGrp = esGastoGrp ? 'Gasto múltiple' : 'Pedido múltiple';
-      const colorGrp = esGastoGrp ? '#B45309' : '#5B21B6';
-      const fondoGrp = esGastoGrp ? '#FFFBEB' : '#F8F5FF';
-      const bordeGrp = esGastoGrp ? '#F59E0B' : '#7C3AED';
+      const colorGrp = '#0F172A';
+      const fondoGrp = '#F8FAFC';
+      const bordeGrp = '#CBD5E1';
       // Cliente/Proyecto del gasto múltiple (todos los items del lote lo
       // comparten — se toma el primero que lo tenga guardado).
       const proyGrp = esGastoGrp ? ((items.find(x=>x.proyectoCliente)||{}).proyectoCliente || '') : '';
@@ -549,9 +549,9 @@ function renderHistorial(){
         <td>${esGastoGrp ? '<span class="badge badge-warn">Gastado</span>' : (items.every(x=>x.estado==='rechazado') ? (()=>{ const _m=[...new Set(items.map(x=>x.motivo).filter(Boolean))].join(' · '); return '<span class="badge badge-danger">❌ Rechazado</span>'; })() : items.some(x=>x.estado==='recibido') ? '<span class="badge badge-ok">📦 Recibido</span>' : '<span class="badge badge-ok">✅ Entregado</span>')}</td>
         <td class="!text-[12px] !text-[#475569] !max-w-[220px]">${(()=>{ if(esGastoGrp || !items.every(x=>x.estado==='rechazado')) return ''; const _m=[...new Set(items.map(x=>x.motivo).filter(Boolean))].join(' · '); return _m?`<div class="![white-space:normal] !leading-[1.5]">❌ Motivo: ${hlHist(_m)}</div>`:'<span class="!text-[#CBD5E1]">—</span>'; })()}</td>
         <td class="!text-[11px] !text-[#64748B]">${fmtDate(h.fecha)}</td>
-        <td>${pdfId?`<button onclick="event.stopPropagation();abrirRemision('${pdfId}','${pdfTipo}')" class="btn-sm ![background:#EDE9FE] !text-[#5B21B6] !whitespace-nowrap"><svg class="!inline ![vertical-align:middle] !mr-[2px]" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>PDF</button>`:'—'}</td>
+        <td>${pdfId?`<button onclick="event.stopPropagation();abrirRemision('${pdfId}','${pdfTipo}')" class="btn-sm ![background:#E2E8F0] !text-[#5B21B6] !whitespace-nowrap"><svg class="!inline ![vertical-align:middle] !mr-[2px]" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>PDF</button>`:'—'}</td>
       </tr>
-      <tr id="${gid}" style="display:none;background:#FAF7FF;">
+      <tr id="${gid}" style="display:none;background:#F8FAFC;">
         <td class="!p-[0_0_0_32px]" colspan="10">
           <table class="!w-[100%] ![border-collapse:collapse]">
             <thead><tr class="!text-[11px] !text-[#94A3B8] !uppercase !tracking-[.05em]">
@@ -567,8 +567,8 @@ function renderHistorial(){
                 const cantTxt = esRolloX
                   ? (()=>{const _q=cantRolloPartes(prodX,x.cantidad); return `${_q.n} ${_q.suf}`;})()
                   : `${x.cantidad} <span class="!text-[#94A3B8]">${x.unidadEnvio==='metros'?'mts.':'uds.'}</span>`;
-                return `<tr class="![border-top:1px_solid_#EDE9FE]">
-                <td class="!p-[6px_8px] ![font-family:monospace] !text-[11px] !text-[#7C3AED]">${esc(x.ref)}</td>
+                return `<tr class="![border-top:1px_solid_#E2E8F0]">
+                <td class="!p-[6px_8px] ![font-family:monospace] !text-[11px] !text-[#475569]">${esc(x.ref)}</td>
                 <td class="!p-[6px_8px] !text-[12px] !font-semibold">${esc(x.nombre)}${x.seriales?`<div class="!text-[11px] !font-semibold !text-[#475569] !mt-[2px]">🔢 SN: ${esc(x.seriales)}</div>`:''}</td>
                 <td class="!p-[6px_8px] !text-[12px]">${cantTxt}</td>
                 <td class="!p-[6px_8px]">${x.estado==='rechazado'?`<span class="badge badge-danger !text-[10px]">❌ Rechazado</span>${x.motivo?`<div class="!text-[10px] !text-[#E24B4A]">${esc(x.motivo)}</div>`:''}`:`<span class="badge badge-ok !text-[10px]">${x.estado==='recibido'?'📦 Recibido':'✅ Entregado'}</span>`}</td>
@@ -727,7 +727,7 @@ function renderHistorial(){
         else if(h._esGasto){ pid=h.id; ptipo='gasto'; }
         else { pid=h._solicitudId||h.id; ptipo='solicitud'; }
         if(!pid) return '<span style="color:#E2E8F0;font-size:11px;">—</span>';
-        return '<button onclick="abrirRemision(\''+pid+'\',\''+ptipo+'\')" class="btn-sm" style="background:#EDE9FE;color:#5B21B6;white-space:nowrap;" title="Ver remisión PDF"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:middle;margin-right:2px;"><path stroke-linecap="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>PDF</button>';
+        return '<button onclick="abrirRemision(\''+pid+'\',\''+ptipo+'\')" class="btn-sm" style="background:#EAF3DE;color:#166534;white-space:nowrap;" title="Ver remisión PDF"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:middle;margin-right:2px;"><path stroke-linecap="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>PDF</button>';
       })()}</td>
     </tr>`;
   }).join('');
