@@ -60,6 +60,11 @@ function _stockPedible(p){
   const base=_stockCentral(p);
   return p && !p.metrosPorUnidad ? base+(p.stockRecuperado||0) : base;
 }
+// Aviso de cuánto del stock pedible es material recogido (♻️), para mostrarlo junto al número.
+function _txtRecogido(p){
+  const r = (p && !p.metrosPorUnidad && p._stockEspecial===undefined) ? (p.stockRecuperado||0) : 0;
+  return r>0 ? ` (♻️ ${r} recogido)` : '';
+}
 function getSedesActivas(){return getSedes().filter(s=>s.activa==1||s.activa==null||s.activa===undefined);}
 function getSedesMunicipio(){
   // "Almacen Central" está reservado en todo el sistema como sinónimo del
