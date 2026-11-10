@@ -1032,7 +1032,7 @@ function selectTipoOficina(val){
 ════════════════════════════════════════════════ */
 function setTabHistorial(t){
   tabHistorial=t;
-  ['todos','aprobado','pendiente','rechazado','gasto','venta','ingreso','anulado'].forEach(id=>{const b=document.getElementById('tabHist_'+id);if(b)b.classList.toggle('active',id===t);});
+  ['todos','aprobado','pendiente','en_gestion','rechazado','gasto','venta','ingreso','anulado'].forEach(id=>{const b=document.getElementById('tabHist_'+id);if(b)b.classList.toggle('active',id===t);});
   if(t==='anulado') cargarReporteAnulados();
   else renderHistorial();
 }
