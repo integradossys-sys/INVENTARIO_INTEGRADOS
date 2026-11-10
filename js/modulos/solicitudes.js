@@ -1700,7 +1700,7 @@ function abrirPedidoMunicipio(ref){
   const aRollos = (metros) => p.metrosPorUnidad ? valorMostrar(p, metros) : metros;
 
   const miStock    = p.stockUsuario || 0;
-  const stockNeiva = _stockCentral(p);
+  const stockNeiva = _stockPedible(p);
   s('pedidoNombreShow',`${p.ref} — ${p.nombre}`);
   s('pedidoStockShow',`${aRollos(miStock)} ${sufijoReal}`);
   s('pedidoStockNeiva',`${aRollos(stockNeiva)} ${sufijoReal}`);
@@ -1887,7 +1887,7 @@ function pmRenderCatalogo(){
 
   cat.innerHTML = filtrados.map(p => {
     const sufijo    = p.metrosPorUnidad ? 'rollos' : (p.unidad==='metros' ? 'mts.' : 'uds.');
-    const stockNeiva = p.metrosPorUnidad ? valorMostrar(p, _stockCentral(p)) : _stockCentral(p);
+    const stockNeiva = p.metrosPorUnidad ? valorMostrar(p, _stockPedible(p)) : _stockPedible(p);
     const enCarrito  = _pmCantidades[p.ref] || 0;
     const yaAgregado = enCarrito > 0;
     const carretesHtml = '';
@@ -1975,7 +1975,7 @@ function pmRenderCarrito(){
     const carretesDisp = esFibraItem ? (window._pmCarretesPorCategoria?.[p._catId] || []) : [];
     const sufijo     = p.metrosPorUnidad ? 'rollos' : (p.unidad==='metros' ? 'mts.' : 'uds.');
     const cant       = _pmCantidades[ref] || 0;
-    const stockNeivaRaw = _stockCentral(p);
+    const stockNeivaRaw = _stockPedible(p);
     const stockNeiva = p.metrosPorUnidad ? valorMostrar(p, stockNeivaRaw) : stockNeivaRaw;
     const excede     = cant > stockNeivaRaw && stockNeivaRaw > 0;
     const borde      = excede ? '#FCA5A5' : '#DDD6FE';
@@ -3412,7 +3412,7 @@ async function enviarPedidoMultiple(){
   for(const [ref,cant] of items){
     const p = prods.find(x=>x.ref===ref);
     if(!p) continue;
-    const stockNeivaRaw = _stockCentral(p);
+    const stockNeivaRaw = _stockPedible(p);
     const stockComparar = p.metrosPorUnidad ? (stockNeivaRaw / p.metrosPorUnidad) : stockNeivaRaw;
     if(cant > stockComparar){
       const suf = p.metrosPorUnidad ? 'rollos' : '';
