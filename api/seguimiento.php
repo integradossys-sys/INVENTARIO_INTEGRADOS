@@ -1373,8 +1373,11 @@ if ($method === 'POST' && $action === 'recibido') {
         $categoriaId = 0;
 
         // 1) Si referencia_id apunta directamente a una categoría válida (envío directo enviar_metros).
+        //    SOLO para envíos directos (tipo 'fibra'): en una solicitud referencia_id es el id de la
+        //    SOLICITUD, y si por casualidad coincidía con el id de una categoría (p.ej. 6) la fibra
+        //    quedaba en la categoría equivocada (llegaba "6 hilos" en vez de "12 hilos").
         $refId = (int)$s['referencia_id'];
-        if ($refId > 0) {
+        if ($refId > 0 && ($s['tipo'] ?? '') === 'fibra') {
             $chk = $pdo->prepare("SELECT id FROM fibra_categorias WHERE id = ?");
             $chk->execute([$refId]);
             if ($chk->fetchColumn()) $categoriaId = $refId;
@@ -1399,7 +1402,7 @@ if ($method === 'POST' && $action === 'recibido') {
 
         // 3) Resolver por el nombre del producto: "Fibra <nombre categoría>".
         if (!$categoriaId) {
-            $nom = trim(preg_replace('/^Fibra\s+/i', '', $s['nombre_producto'] ?? ''));
+            $nom = trim(preg_replace('/^Fibra\s*[—–-]?\s*/iu', '', $s['nombre_producto'] ?? ''));
             if ($nom !== '') {
                 $q = $pdo->prepare("SELECT id FROM fibra_categorias WHERE nombre = ? LIMIT 1");
                 $q->execute([$nom]);
