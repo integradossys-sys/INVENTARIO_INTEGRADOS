@@ -66,6 +66,18 @@ if ($method === 'GET' && $action === 'listar') {
         $params[] = '%' . $_GET['producto'] . '%';
         $params[] = '%' . $_GET['producto'] . '%';
     }
+    // Búsqueda por usuario / tipo de usuario: antes solo se filtraba lo ya cargado en pantalla
+    // (las 50 más recientes), por eso los registros más viejos "no aparecían".
+    if (!in_array($rol, ['municipio','tecnico','persona'], true)) {
+        if (!empty($_GET['usuario'])) {
+            $where[]  = "h.enviado_por LIKE ?";
+            $params[] = '%' . $_GET['usuario'] . '%';
+        }
+        if (!empty($_GET['tipo_usuario'])) {
+            $where[]  = "h.enviado_por IN (SELECT usuario FROM usuarios WHERE rol = ?)";
+            $params[] = $_GET['tipo_usuario'];
+        }
+    }
     if (!empty($_GET['municipio']) && $rol !== 'municipio' && $rol !== 'tecnico' && $rol !== 'persona') {
         $where[]  = "destino = ?";
         $params[] = $_GET['municipio'];
