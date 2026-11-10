@@ -4386,16 +4386,16 @@
 <script src="js/modulos/datos.js?v=28"></script>
 <script src="js/modulos/panel_productos.js?v=12"></script>
 <script src="js/modulos/proveedores.js?v=25"></script>
-<script src="js/modulos/solicitudes.js?v=18"></script>
+<script src="js/modulos/solicitudes.js?v=19"></script>
 <script src="js/modulos/historial.js?v=20"></script>
 <script src="js/modulos/usuarios.js?v=5"></script>
 <script src="js/modulos/excel_reportes.js?v=2"></script>
 <script src="js/modulos/ont.js?v=4"></script>
 <script src="js/modulos/fibra.js?v=4"></script>
-<script src="js/modulos/mis_equipos.js?v=21"></script>
+<script src="js/modulos/mis_equipos.js?v=22"></script>
 <script src="js/modulos/sst.js?v=11"></script>
 <script src="js/modulos/informes.js?v=2"></script>
-<script src="js/modulos/pedido_agrupado.js?v=10"></script>
+<script src="js/modulos/pedido_agrupado.js?v=11"></script>
 <script src="js/modulos/escaneo_compras.js?v=15"></script>
 <script src="js/chart.umd.min.js"></script>
 <script src="js/modulos/graficas.js?v=2"></script>
@@ -5416,6 +5416,10 @@
         <div id="ubicacionInstalarStatus" style="font-size:11px;color:#94A3B8;margin-top:3px;">Puedes escribir la dirección, usar el GPS o elegir el punto en el mapa</div>
         <input type="hidden" id="instalarOntLat" value="">
         <input type="hidden" id="instalarOntLng" value="">
+      </div>
+      <div>
+        <label class="lbl">Observaciones <span style="color:#94A3B8;font-weight:400;">(opcional)</span></label>
+        <textarea id="instalarOntNota" class="inp" rows="2" maxlength="500" placeholder="Ej: cliente pidió reubicar el equipo, cable extra usado…" style="resize:vertical;"></textarea>
       </div>
       <div>
         <label class="lbl">Quién la instala <span style="color:#94A3B8;font-weight:400;">(quien tiene la ONT — no se puede cambiar)</span></label>
