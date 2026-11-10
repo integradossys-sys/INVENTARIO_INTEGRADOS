@@ -244,7 +244,7 @@ if ($method === 'POST' && $action === 'aprobar') {
                 responder(['error' => 'Stock insuficiente en tu inventario personal'], 400);
             }
         } else {
-            if ($cant > (int)$p['stock_neiva']) {
+            if ($cant > (int)$p['stock_neiva'] + (int)($p['stock_recuperado'] ?? 0)) { // nuevo + recuperado
                 responder(['error' => 'Stock insuficiente en el almacén central'], 400);
             }
         }
