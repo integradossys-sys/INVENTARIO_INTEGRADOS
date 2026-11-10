@@ -52,7 +52,7 @@ async function _recargarSeguimiento(){
 function setTabSeg(t){
   _tabSeg=t;
   _segLimite=_segPorPagina;
-  ['todos','aprobado','en_camino','recibido'].forEach(id=>{
+  ['todos','aprobado','en_camino','entregado','recibido'].forEach(id=>{
     const el=document.getElementById('tabSeg_'+id);
     if(el) el.classList.toggle('active',id===t);
   });
@@ -95,6 +95,7 @@ function renderSeguimiento(){
   const st=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v||'';};
   st('cntSegAprobado',_contarUnidadesSeg(items.filter(s=>s.estado==='aprobado'))||'');
   st('cntSegCamino',_contarUnidadesSeg(items.filter(s=>s.estado==='en_camino'))||'');
+  st('cntSegEntregado',_contarUnidadesSeg(items.filter(s=>s.estado==='entregado'))||'');
   st('cntSegRecibido',_contarUnidadesSeg(items.filter(s=>s.estado==='recibido'))||'');
   if(_tabSeg!=='todos') items=items.filter(s=>s.estado===_tabSeg);
 
