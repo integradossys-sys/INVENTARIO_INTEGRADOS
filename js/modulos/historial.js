@@ -106,14 +106,23 @@ function renderMisPedidos(){
 /* ════════════════════════════════════════════════
    HISTORIAL CON PAGINACIÓN
 ════════════════════════════════════════════════ */
+// Al cambiar un filtro se vuelve a pedir al servidor (así busca en TODO el historial,
+// no solo en la página que está cargada). Espera un momento mientras se escribe.
+let _histFiltroTimer = null;
+function _histFiltroCambio(){
+  clearTimeout(_histFiltroTimer);
+  _histFiltroTimer = setTimeout(()=>cargarHistorialPaginado(1), 350);
+}
 async function cargarHistorialPaginado(pagina){
   _histPagina = pagina || _histPagina;
   const tbody = document.getElementById('tablaHistorial');
   if(tbody) tbody.innerHTML = '<tr><td class="!p-[24px] !text-center !text-[#94A3B8]" colspan="10">Cargando...</td></tr>';
 
   // Leer filtros activos
-  const fecha    = document.getElementById('histFiltroFecha')?.value    || '';
-  const producto = document.getElementById('histFiltroProd')?.value     || '';
+  const fecha    = document.getElementById('filtroFecha')?.value        || '';
+  const producto = (document.getElementById('filtroProducto')?.value     || '').trim();
+  const usuarioF = (document.getElementById('filtroUsuarioHist')?.value  || '').trim();
+  const tipoUsrF = document.getElementById('filtroTipoUsuarioHist')?.value || '';
   const municipio= document.getElementById('histFiltroMun')?.value      || '';
   const origen   = document.getElementById('histFiltroOrigen')?.value   || '';
 
@@ -123,6 +132,8 @@ async function cargarHistorialPaginado(pagina){
   });
   if(fecha)     params.append('fecha',    fecha);
   if(producto)  params.append('producto', producto);
+  if(usuarioF)  params.append('usuario', usuarioF);
+  if(tipoUsrF)  params.append('tipo_usuario', tipoUsrF);
   if(municipio) params.append('municipio',municipio);
   if(origen)    params.append('origen',   origen);
 
