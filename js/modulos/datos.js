@@ -635,8 +635,8 @@ function _renderSelectorOrigenStockEnDespacho(id){
     return `<div class="!mb-[14px] ![background:#F0FDF4] ![border:1.5px_solid_#BBF7D0] !rounded-[10px] !p-[10px_12px]">
       <div class="!text-[12px] !font-semibold !mb-[6px]">♻️ ¿De cuál stock sale? — ${esc(it.nombre_producto||ref)} (${it.cantidad})</div>
       <select id="despOrigen_${it.id}" class="inp" style="font-size:12px;padding:6px 10px;">
-        <option value="nuevo" ${yaRec?'':'selected'}>🆕 Nuevo (${nuevo} disponibles)</option>
-        <option value="recuperado" ${yaRec?'selected':''}>♻️ Recuperado (${p.stockRecuperado} disponibles)</option>
+        <option value="nuevo" ${(yaRec||nuevo<it.cantidad)?'':'selected'}>🆕 Nuevo (${nuevo} disponibles)</option>
+        <option value="recuperado" ${(yaRec||nuevo<it.cantidad)?'selected':''}>♻️ Recuperado (${p.stockRecuperado} disponibles)</option>
       </select>
     </div>`;
   }).join('');
