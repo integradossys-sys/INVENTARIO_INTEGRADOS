@@ -1402,10 +1402,13 @@ if ($method === 'POST' && $action === 'recibido') {
 
         // 3) Resolver por el nombre del producto: "Fibra <nombre categoría>".
         if (!$categoriaId) {
-            $nom = trim(preg_replace('/^Fibra\s*[—–-]?\s*/iu', '', $s['nombre_producto'] ?? ''));
+            $nom = trim(preg_replace('/^[^\p{L}\p{N}]*Fibra\s*(?:[—–-]\s*)?/iu', '', $s['nombre_producto'] ?? ''));
+            // También se prueba el nombre completo sin el adorno del inicio (algunas categorías
+            // se llaman "FIBRA 12 HILOS…", así que quitarle "Fibra" las dejaría sin coincidir).
+            $nomCompleto = trim(preg_replace('/^[^\p{L}\p{N}]*(?:Fibra\s*[—–-]\s*)?/iu', '', $s['nombre_producto'] ?? ''));
             if ($nom !== '') {
-                $q = $pdo->prepare("SELECT id FROM fibra_categorias WHERE nombre = ? LIMIT 1");
-                $q->execute([$nom]);
+                $q = $pdo->prepare("SELECT id FROM fibra_categorias WHERE nombre = ? OR nombre = ? ORDER BY (nombre = ?) DESC LIMIT 1");
+                $q->execute([$nom, $nomCompleto, $nomCompleto]);
                 $categoriaId = (int)$q->fetchColumn();
             }
         }
