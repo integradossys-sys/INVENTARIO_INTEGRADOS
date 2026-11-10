@@ -493,7 +493,7 @@ function renderHistorial(){
       return `<span class="badge badge-warn">🕐 Pendiente</span>`;
     }
     const _esGlbl=esGasto(h);
-    if(_esGlbl) return h.es_venta==1 ? `<span class="badge ![background:#EAF3DE] !text-[#166534]">💰 Vendido</span>` : `<span class="badge badge-warn">Gastado</span>`;
+    if(_esGlbl) return h.es_venta==1 ? `<span class="badge ![background:#EAF3DE] !text-[#166534]">💰 Vendido</span>` : `<span class="badge badge-gray">Gastado</span>`;
     if(h.estado==='recibido') return `<span class="badge badge-ok">📦 Recibido</span>`;
     if(h.estado==='entregado') return `<span class="badge badge-brand">✅ Entregado</span>`;
     return `<span class="badge ${ecls[h.estado]||'badge-gray'}">${
@@ -527,7 +527,7 @@ function renderHistorial(){
       // comparten — se toma el primero que lo tenga guardado).
       const proyGrp = esGastoGrp ? ((items.find(x=>x.proyectoCliente)||{}).proyectoCliente || '') : '';
       const etiquetaProyGrp = proyGrp
-        ? `<div class="!cursor-pointer !text-[10px] !font-bold !text-[#B45309] ![background:#FFF] ![border:1px_solid_#FCD34D] !inline-block !p-[1px_6px] !rounded-[4px] !mt-[3px]" onclick="event.stopPropagation();abrirDetalleProyecto('${esc(proyGrp)}')" title="Ver todo el proyecto ${esc(proyGrp)}">🏗️ ${esc(proyGrp)}</div>`
+        ? `<div class="!cursor-pointer !text-[10px] !font-bold !text-[#475569] ![background:#FFF] ![border:1px_solid_#CBD5E1] !inline-block !p-[1px_6px] !rounded-[4px] !mt-[3px]" onclick="event.stopPropagation();abrirDetalleProyecto('${esc(proyGrp)}')" title="Ver todo el proyecto ${esc(proyGrp)}">🏗️ ${esc(proyGrp)}</div>`
         : '';
       // Expandir/colapsar detalle
       const gid = 'ghist_'+h.id;
@@ -542,11 +542,11 @@ function renderHistorial(){
             </div>
           </div>
         </td>
-        <td>${h.usuarioDestino?`<span class="badge badge-brand !text-[11px]">👤 ${esc(h.usuarioDestino)}</span><div class="!text-[10px] !text-[#64748B] !mt-[2px]">${esc(h.destino||'')}</div>`:`<span class="badge badge-brand !text-[11px]">${esc(h.destino)}</span>`}</td>
+        <td>${h.usuarioDestino?`<span class="badge badge-gray !text-[11px]">👤 ${esc(h.usuarioDestino)}</span><div class="!text-[10px] !text-[#64748B] !mt-[2px]">${esc(h.destino||'')}</div>`:`<span class="badge badge-gray !text-[11px]">${esc(h.destino)}</span>`}</td>
         <td style="font-weight:700;">${total} <span class="!text-[11px] !text-[#94A3B8]">uds.</span></td>
         <td class="!text-[12px] !text-[#64748B]">${escU(envBy)}</td>
         <td class="!text-[12px] !text-[#64748B]">${escU(h.aprobadoPor||'—')}</td>
-        <td>${esGastoGrp ? '<span class="badge badge-warn">Gastado</span>' : (items.every(x=>x.estado==='rechazado') ? (()=>{ const _m=[...new Set(items.map(x=>x.motivo).filter(Boolean))].join(' · '); return '<span class="badge badge-danger">❌ Rechazado</span>'; })() : items.some(x=>x.estado==='recibido') ? '<span class="badge badge-ok">📦 Recibido</span>' : '<span class="badge badge-ok">✅ Entregado</span>')}</td>
+        <td>${esGastoGrp ? '<span class="badge badge-gray">Gastado</span>' : (items.every(x=>x.estado==='rechazado') ? (()=>{ const _m=[...new Set(items.map(x=>x.motivo).filter(Boolean))].join(' · '); return '<span class="badge badge-danger">❌ Rechazado</span>'; })() : items.some(x=>x.estado==='recibido') ? '<span class="badge badge-ok">📦 Recibido</span>' : '<span class="badge badge-ok">✅ Entregado</span>')}</td>
         <td class="!text-[12px] !text-[#475569] !max-w-[220px]">${(()=>{ if(esGastoGrp || !items.every(x=>x.estado==='rechazado')) return ''; const _m=[...new Set(items.map(x=>x.motivo).filter(Boolean))].join(' · '); return _m?`<div class="![white-space:normal] !leading-[1.5]">❌ Motivo: ${hlHist(_m)}</div>`:'<span class="!text-[#CBD5E1]">—</span>'; })()}</td>
         <td class="!text-[11px] !text-[#64748B]">${fmtDate(h.fecha)}</td>
         <td>${pdfId?`<button onclick="event.stopPropagation();abrirRemision('${pdfId}','${pdfTipo}')" class="btn-sm ![background:#E2E8F0] !text-[#5B21B6] !whitespace-nowrap"><svg class="!inline ![vertical-align:middle] !mr-[2px]" width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>PDF</button>`:'—'}</td>
@@ -601,7 +601,7 @@ function renderHistorial(){
     // Una sola columna "Movimiento" que combina tipo + estado
     let movBadge;
     if(esG){
-      movBadge = h.es_venta==1 ? `<span class="badge ![background:#EAF3DE] !text-[#166534]">💰 Venta registrada</span>` : `<span class="badge badge-warn">💸 Gasto registrado</span>`;
+      movBadge = h.es_venta==1 ? `<span class="badge ![background:#EAF3DE] !text-[#166534]">💰 Venta registrada</span>` : `<span class="badge badge-gray">💸 Gasto registrado</span>`;
     } else if(h._esPedido){
       const r=h._estadoReal;
       if(r==='rechazado')
@@ -626,8 +626,8 @@ function renderHistorial(){
       movBadge=`<span class="badge ![background:#EAF3DE] !text-[#166534]">📥 Ingreso</span>`;
     } else if(h._origen==='devolucion' || /↩️ Devolución/.test(h.descripcion||'')){
       movBadge = h.estado==='recibido'
-        ? `<span class="badge ![background:#E0F2FE] !text-[#0369A1]">↩️ Devolución recibida</span>`
-        : `<span class="badge ![background:#E0F2FE] !text-[#0369A1]">↩️ Devolución</span>`;
+        ? `<span class="badge ![background:#F1F5F9] !text-[#475569]">↩️ Devolución recibida</span>`
+        : `<span class="badge ![background:#F1F5F9] !text-[#475569]">↩️ Devolución</span>`;
       const _mRec = (h.descripcion||'').match(/Recogido (reutilizable|dañado)( \(\d+\) \+ dañado \(\d+\))?/);
       if(_mRec){
         const _mix = !!_mRec[2], _dan = _mRec[1]==='dañado';
@@ -663,10 +663,10 @@ function renderHistorial(){
       ? `<div class="!text-[10px] !font-bold !text-[#B91C1C] ![background:#FEE2E2] !inline-block !p-[1px_6px] !rounded-[4px] !mb-[3px]" title="Material de ${esc(mUsoPrestamo[1].trim())}, prestado y usado por ${esc(mUsoPrestamo[2].trim())}">🤝 Usó ${esc(mUsoPrestamo[2].trim())}</div><br>`
       : '';
     const etiquetaRetirado = h.retirado
-      ? `<div class="!text-[10px] !font-bold !text-[#92400E] ![background:#FEF3C7] !inline-block !p-[1px_6px] !rounded-[4px] !mb-[3px]" title="Retirado por ${esc(h.retiradoPor||'')} — ${esc(h.retiradoMotivo||'')}">🚫 Retirado — ${esc(h.retiradoMotivo||'')}</div><br>`
+      ? `<div class="!text-[10px] !font-bold !text-[#475569] ![background:#F1F5F9] !inline-block !p-[1px_6px] !rounded-[4px] !mb-[3px]" title="Retirado por ${esc(h.retiradoPor||'')} — ${esc(h.retiradoMotivo||'')}">🚫 Retirado — ${esc(h.retiradoMotivo||'')}</div><br>`
       : '';
     const etiquetaProyecto = h.proyectoCliente
-      ? `<div class="!cursor-pointer !text-[10px] !font-bold !text-[#B45309] ![background:#FFFBEB] !inline-block !p-[1px_6px] !rounded-[4px] !mb-[3px]" onclick="event.stopPropagation();abrirDetalleProyecto('${esc(h.proyectoCliente)}')" title="Ver todo el proyecto ${esc(h.proyectoCliente)}">🏗️ ${esc(h.proyectoCliente)}</div><br>`
+      ? `<div class="!cursor-pointer !text-[10px] !font-bold !text-[#475569] ![background:#F1F5F9] !inline-block !p-[1px_6px] !rounded-[4px] !mb-[3px]" onclick="event.stopPropagation();abrirDetalleProyecto('${esc(h.proyectoCliente)}')" title="Ver todo el proyecto ${esc(h.proyectoCliente)}">🏗️ ${esc(h.proyectoCliente)}</div><br>`
       : '';
     const productoCell = `<td class="!font-semibold !relative">
       ${etiquetaRetirado}${etiquetaRecuperado}${etiquetaPrestamo}${etiquetaProyecto}
@@ -682,10 +682,10 @@ function renderHistorial(){
       </div>` : ''}
     </td>`;
 
-    return `<tr class="fade-row" style="${esG?'background:#FFFBF2;':h._esPedido&&h._estadoReal==='en_gestion'?'background:#F0F7FF;':h._esPedido&&h._estadoReal==='rechazado'?'background:#FFF5F5;':''}">
+    return `<tr class="fade-row" style="">
       <td><span class="![font-family:monospace] !text-[11px] ![background:#F1F5F9] !p-[2px_6px] !rounded-[5px]">${hlHist(h.ref||'—')}</span></td>
       ${productoCell}
-      <td>${h.usuarioDestino?`<span class="badge ${esG?'badge-warn':'badge-brand'}">👤 ${esc(h.usuarioDestino)}</span><div class="!text-[10px] !text-[#64748B] !mt-[2px]">${esc(h.destino||'')}</div>`:`<span class="badge ${esG?'badge-warn':'badge-brand'}">${esc(h.destino||'—')}</span>`}</td>
+      <td>${h.usuarioDestino?`<span class="badge badge-gray">👤 ${esc(h.usuarioDestino)}</span><div class="!text-[10px] !text-[#64748B] !mt-[2px]">${esc(h.destino||'')}</div>`:`<span class="badge badge-gray">${esc(h.destino||'—')}</span>`}</td>
       <td class="!font-semibold">${prodInfo && prodInfo.metrosPorUnidad ? (()=>{const _q=cantRolloPartes(prodInfo,h.cantidad||0); return `${_q.n} <span class="!text-[11px] !font-normal !text-[#94A3B8]">${_q.suf}</span>`;})() : `${h.cantidad||0} <span class="!text-[11px] !font-normal !text-[#94A3B8]">${h.unidadEnvio==='metros'?'mts.':sufijo(h.ref)}</span>`}</td>
       <td class="!text-[12px] !text-[#64748B]">${hlUsrHist(h.enviadoPor?nombreUsr(h.enviadoPor):'—')}</td>
       <td class="!text-[12px] !text-[#64748B]">${escU(aprobadoPor)}</td>
