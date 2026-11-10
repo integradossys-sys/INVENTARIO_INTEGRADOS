@@ -1631,8 +1631,8 @@ function renderTabla(){
             ?`<span class="badge badge-ok !text-[11px]">✓ mín. ${min0} ${esRollosMin?('rollo'+(min0!==1?'s':'')):sufijoP(p)}</span>`
             :`<span class="badge badge-warn !text-[11px]">⚠ mín. ${min0} ${esRollosMin?('rollo'+(min0!==1?'s':'')):sufijoP(p)}</span>`)
           :`<span class="!text-[11px] !text-[#CBD5E1]">—</span>`)
-      : (neiva0>0
-          ? `<span class="badge badge-ok !text-[11px]">📥 Puedes pedir hasta ${p.metrosPorUnidad ? (p.rollosCentral?.length||0)+' rollo'+((p.rollosCentral?.length||0)!==1?'s':'') : valorMostrar(p,neiva0)+' '+suf}</span>`
+      : ((neiva0>0 || _stockPedible(p)>0)
+          ? `<span class="badge badge-ok !text-[11px]">📥 Puedes pedir hasta ${p.metrosPorUnidad ? (p.rollosCentral?.length||0)+' rollo'+((p.rollosCentral?.length||0)!==1?'s':'') : valorMostrar(p,_stockPedible(p))+' '+suf}${_txtRecogido(p)}</span>`
           : `<span class="badge badge-danger !text-[11px]">Sin stock en almacén</span>`);
     let stockHTML='';
     // Antes cada rollo se listaba aparte ("Rollo #12: de 300m quedan 180m"),
