@@ -1202,15 +1202,15 @@
           </div>
         </div>
         <div style="padding:14px 20px;border-bottom:1px solid #F1F5F9;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
-          <input type="date" id="filtroFecha" onchange="renderHistorial()" class="inp" style="width:auto;">
-          <input type="text" id="filtroProducto" placeholder="Buscar producto…" oninput="renderHistorial()" class="inp" style="width:180px;">
-          <select id="filtroTipoUsuarioHist" onchange="renderHistorial()" class="inp" style="width:auto;">
+          <input type="date" id="filtroFecha" onchange="_histFiltroCambio()" class="inp" style="width:auto;">
+          <input type="text" id="filtroProducto" placeholder="Buscar producto…" oninput="_histFiltroCambio()" class="inp" style="width:180px;">
+          <select id="filtroTipoUsuarioHist" onchange="_histFiltroCambio()" class="inp" style="width:auto;">
             <option value="">Todos los tipos</option>
             <option value="municipio">Municipio</option>
             <option value="tecnico">Técnico</option>
             <option value="persona">Persona</option>
           </select>
-          <input type="text" id="filtroUsuarioHist" placeholder="🔍 Buscar usuario…" oninput="renderHistorial()" class="inp" style="width:160px;">
+          <input type="text" id="filtroUsuarioHist" placeholder="🔍 Buscar usuario…" oninput="_histFiltroCambio()" class="inp" style="width:160px;">
           <select id="filtroEnviadoPor" onchange="renderHistorial()" class="inp" style="width:auto;">
             <option value="">Todos los orígenes</option>
             <option value="directo">Envío directo (admin)</option>
@@ -4387,7 +4387,7 @@
 <script src="js/modulos/panel_productos.js?v=12"></script>
 <script src="js/modulos/proveedores.js?v=25"></script>
 <script src="js/modulos/solicitudes.js?v=19"></script>
-<script src="js/modulos/historial.js?v=20"></script>
+<script src="js/modulos/historial.js?v=21"></script>
 <script src="js/modulos/usuarios.js?v=5"></script>
 <script src="js/modulos/excel_reportes.js?v=2"></script>
 <script src="js/modulos/ont.js?v=4"></script>
