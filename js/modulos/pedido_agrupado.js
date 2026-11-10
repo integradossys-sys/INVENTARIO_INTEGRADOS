@@ -6,7 +6,7 @@ let _carrito = []; // [{ref, nombre, unidad, cantidad, stockNeiva, max}]
 function agregarAlCarrito(idx) {
   const p = getProductos()[idx];
   if (!p) return;
-  const stockNeiva = _stockCentral(p);
+  const stockNeiva = _stockPedible(p);
   if (stockNeiva === 0) {
     toast(`"${p.nombre}" no tiene stock disponible en el almacén`, 'error');
     return;
@@ -488,7 +488,7 @@ function _renderGestionItems(items) {
     const esOnt      = String(item.ref||'').startsWith('ONT::');
     const esFibra    = item.ref === 'FIBRA';
     const prod       = (esOnt||esFibra) ? null : getProductos().find(p=>p.ref===item.ref);
-    const stockDisp  = esOnt ? _stockOntDisponible(item.ref) : esFibra ? _stockFibraDisponible(item) : (prod ? _stockCentral(prod) : 0);
+    const stockDisp  = esOnt ? _stockOntDisponible(item.ref) : esFibra ? _stockFibraDisponible(item) : (prod ? _stockPedible(prod) : 0);
     const rechazado  = item.estado === 'rechazada';
     const cantInicial = item.cantidad_aprobada != null ? item.cantidad_aprobada : item.cantidad;
     const stockColor  = stockDisp >= item.cantidad ? '#16A871' : stockDisp > 0 ? '#B45309' : '#B91C1C';
@@ -690,7 +690,7 @@ async function confirmarGestionPedido(modo) {
       const esOntItem = String(item.ref||'').startsWith('ONT::');
       const esFibraItem = item.ref === 'FIBRA';
       const prod  = (esOntItem||esFibraItem) ? null : getProductos().find(p=>p.ref===item.ref);
-      const stock = esOntItem ? _stockOntDisponible(item.ref) : esFibraItem ? _stockFibraDisponible(item) : (prod ? _stockCentral(prod) : 0);
+      const stock = esOntItem ? _stockOntDisponible(item.ref) : esFibraItem ? _stockFibraDisponible(item) : (prod ? _stockPedible(prod) : 0);
       if(cantAprob > stock)
         errores.push(esRolloInput
           ? `${item.nombre}: apruebas ${valorMostrar(prod,cantAprob)} rollo(s) pero solo hay ${valorMostrar(prod,stock)} en almacén`
