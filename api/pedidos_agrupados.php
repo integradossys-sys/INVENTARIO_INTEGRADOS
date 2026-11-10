@@ -334,12 +334,13 @@ if ($method === 'POST' && $action === 'aprobar_items') {
                             responder(['error' => "Stock insuficiente de fibra: solo hay {$disp} m disponibles"], 400);
                         }
                     } else {
-                        $stockRow = $pdo->prepare("SELECT stock_neiva FROM productos WHERE ref = ?");
+                        $stockRow = $pdo->prepare("SELECT stock_neiva, stock_recuperado FROM productos WHERE ref = ?");
                         $stockRow->execute([$refRow['ref']]);
                         $st = $stockRow->fetch();
-                        if ($st && $cantAprob > (int)$st['stock_neiva']) {
+                        $dispTot = $st ? ((int)$st['stock_neiva'] + (int)($st['stock_recuperado'] ?? 0)) : 0; // nuevo + recuperado
+                        if ($st && $cantAprob > $dispTot) {
                             $pdo->rollBack();
-                            responder(['error' => "Stock insuficiente para {$refRow['ref']}: solo hay {$st['stock_neiva']} unidades disponibles"], 400);
+                            responder(['error' => "Stock insuficiente para {$refRow['ref']}: solo hay {$dispTot} unidades disponibles"], 400);
                         }
                     }
                 }
@@ -363,12 +364,13 @@ if ($method === 'POST' && $action === 'aprobar_items') {
                     $dispFibra = _fibraMetrosDisponibles($pdo, $s['categoria_fibra_id'] ?? null);
                     if ($dispFibra >= 0 && $dispFibra < $cantAprob) $cantAprob = (int)$dispFibra;
                 } else {
-                    $prod = $pdo->prepare("SELECT id, stock_neiva FROM productos WHERE ref = ?");
+                    $prod = $pdo->prepare("SELECT id, stock_neiva, stock_recuperado FROM productos WHERE ref = ?");
                     $prod->execute([$s['ref']]);
                     $p = $prod->fetch();
 
-                    if (!$p || $p['stock_neiva'] < $cantAprob) {
-                        $cantAprob = (int)($p['stock_neiva'] ?? 0);
+                    $dispTotItem = $p ? ((int)$p['stock_neiva'] + (int)($p['stock_recuperado'] ?? 0)) : 0; // nuevo + recuperado
+                    if (!$p || $dispTotItem < $cantAprob) {
+                        $cantAprob = $dispTotItem;
                     }
                 }
 
