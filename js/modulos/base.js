@@ -52,6 +52,14 @@ function _stockCentral(p){
   if(!p||!p.stock) return p?.stock_neiva||0;
   return p.stock['Almacen Central']||p.stock_neiva||0;
 }
+// Lo que se puede PEDIR al almacén: el stock nuevo + lo recuperado (material recogido
+// reutilizable que ya llegó). Quien aprueba/despacha elige de cuál sale. Los productos por
+// rollo y las ONT/fibra no usan stock recuperado, así que quedan igual.
+function _stockPedible(p){
+  if(p && p._stockEspecial!==undefined) return p._stockEspecial;
+  const base=_stockCentral(p);
+  return p && !p.metrosPorUnidad ? base+(p.stockRecuperado||0) : base;
+}
 function getSedesActivas(){return getSedes().filter(s=>s.activa==1||s.activa==null||s.activa===undefined);}
 function getSedesMunicipio(){
   // "Almacen Central" está reservado en todo el sistema como sinónimo del
