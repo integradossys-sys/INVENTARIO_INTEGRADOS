@@ -217,8 +217,9 @@ if ($method === 'POST' && $action === 'atender') {
         $cant = intval($s['cantidad']);
 
         // Verificar stock
-        if ($cant > intval($p['stock_neiva'])) {
-            $motivo = "Stock insuficiente. Disponible: {$p['stock_neiva']}";
+        $dispTotal = intval($p['stock_neiva']) + intval($p['stock_recuperado'] ?? 0); // nuevo + recuperado
+        if ($cant > $dispTotal) {
+            $motivo = "Stock insuficiente. Disponible: {$dispTotal}";
             $pdo->prepare("UPDATE pedidos_municipio SET estado='rechazado',motivo=?,rechazado_por='Sistema',fecha_respuesta=NOW() WHERE id=?")
                 ->execute([$motivo, $id]);
             responder(['ok'=>true,'estado'=>'rechazado','motivo'=>$motivo]);
