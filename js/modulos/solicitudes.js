@@ -1703,7 +1703,7 @@ function abrirPedidoMunicipio(ref){
   const stockNeiva = _stockPedible(p);
   s('pedidoNombreShow',`${p.ref} — ${p.nombre}`);
   s('pedidoStockShow',`${aRollos(miStock)} ${sufijoReal}`);
-  s('pedidoStockNeiva',`${aRollos(stockNeiva)} ${sufijoReal}`);
+  s('pedidoStockNeiva',`${aRollos(stockNeiva)} ${sufijoReal}${_txtRecogido(p)}`);
   const inputCant = document.getElementById('cantidadPedido');
   if(inputCant){ inputCant.style.borderColor = ''; }
   s('cantidadPedido', miStock > 0 ? aRollos(miStock) : '');
@@ -1902,7 +1902,7 @@ function pmRenderCatalogo(){
           <div style="display:flex;gap:6px;align-items:center;margin-top:3px;flex-wrap:wrap;">
             <span class="badge badge-brand !text-[10px]">${p.ref}</span>
             ${p.proveedor?`<span class="!text-[10px] !text-[#7C3AED]">🏭 ${esc(p.proveedor)}</span>`:''}
-            <span class="!text-[11px] !text-[#64748B]">Almacén: <b>${stockNeiva}</b> ${sufijo}</span>
+            <span class="!text-[11px] !text-[#64748B]">Almacén: <b>${stockNeiva}</b> ${sufijo}${_txtRecogido(p)}</span>
           </div>
           ${carretesHtml}
         </div>
