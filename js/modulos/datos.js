@@ -39,7 +39,7 @@ function _grupoSegId(s){
   const g = s.pedidoAgrupadoId || (s.referencia_id && String(s.referencia_id).startsWith('pag_') ? s.referencia_id : null) || (loteMatch ? loteMatch[1] : null);
   if(g) return g;
   if(s.tipo==='asignacion'){
-    const dest = ((s.notas||'').match(/Recoge en persona:\s*(.+)$/m)||[])[1];
+    const dest = ((s.notas||'').match(/Recoge en persona:\s*(.+?)(?:\s+·\s+.*)?$/mu)||[])[1];
     const f = String(s.fecha_envio||s.fecha_aprobado||'').slice(0,16);
     if(dest && f) return `asg_${s.enviado_por||''}_${dest.trim()}_${f}`;
   }
@@ -226,7 +226,7 @@ function renderSeguimiento(){
       // confirmárselo a sí mismo con el botón completo, con tal de vivir
       // en la misma sede destino — aunque el envío fuera para alguien más.
       const notasParaRecoge = s._esGrupo ? (s._items[0]?.notas||s.notas) : s.notas;
-      const mRecogeSolicitante = (notasParaRecoge||'').match(/Recoge en persona:\s*(.+)$/m);
+      const mRecogeSolicitante = (notasParaRecoge||'').match(/Recoge en persona:\s*(.+?)(?:\s+·\s+.*)?$/mu);
       const destinatarioEspecifico = mRecogeSolicitante ? mRecogeSolicitante[1].trim() : null;
       // Si se eligió un destinatario específico, o si hay un solicitante
       // real identificado (una persona, no un "Enviar directo" de admin),
@@ -284,7 +284,7 @@ function renderSeguimiento(){
       const solicitanteRolE = s._esGrupo ? (s._items[0]?.solicitanteRol||s.solicitanteRol) : s.solicitanteRol;
       const esEnvioDirectoSinSolicitanteRealE = solicitanteRolE==='superadmin' || solicitanteRolE==='distribuidor';
       const notasParaRecogeE = s._esGrupo ? (s._items[0]?.notas||s.notas) : s.notas;
-      const mRecogeE = (notasParaRecogeE||'').match(/Recoge en persona:\s*(.+)$/m);
+      const mRecogeE = (notasParaRecogeE||'').match(/Recoge en persona:\s*(.+?)(?:\s+·\s+.*)?$/mu);
       const destinatarioEspecificoE = mRecogeE ? mRecogeE[1].trim() : null;
       const esTranspE = sesion.usuario===s.transportador;
       const enSedeDestE = _sedesIguales(sesion.sede, s.destino);
@@ -441,7 +441,7 @@ function renderSeguimiento(){
         // persona puntual, se muestra la sede como antes.
         const solic = s._esGrupo ? (s._items[0]?.solicitado_por||s.solicitado_por) : s.solicitado_por;
         const notasRef = s._esGrupo ? (s._items[0]?.notas||s.notas) : s.notas;
-        const m = (notasRef||'').match(/Recoge en persona:\s*(.+)$/m) || (notasRef||'').match(/Destinatario ONT:\s*(.+)$/m);
+        const m = (notasRef||'').match(/Recoge en persona:\s*(.+?)(?:\s+·\s+.*)?$/mu) || (notasRef||'').match(/Destinatario ONT:\s*(.+)$/m);
         const persona = m ? m[1].trim() : (solic||'');
         const sede = _resaltarTexto(s.destino,qBuscar);
         if(!persona) return `<div class="!text-[12px] !font-semibold !text-[#0F172A]">${sede}</div>`;
@@ -579,7 +579,7 @@ async function abrirEnCamino(id){
   if(chk) chk.checked = false;
   const solicitante = item?.solicitado_por || null;
   const solicitanteEsReal = solicitante && solicitante !== sesion.usuario;
-  const mRecoge = (item?.notas||'').match(/Recoge en persona:\s*(.+)$/m);
+  const mRecoge = (item?.notas||'').match(/Recoge en persona:\s*(.+?)(?:\s+·\s+.*)?$/mu);
   const recogePropuesto = mRecoge ? mRecoge[1].trim() : null;
   window._recogeEnPersonaUsuario = recogePropuesto || (solicitanteEsReal ? solicitante : null);
   if(chkWrap) chkWrap.style.display = 'flex';
