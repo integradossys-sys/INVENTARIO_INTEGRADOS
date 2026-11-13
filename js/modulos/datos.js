@@ -263,11 +263,15 @@ function renderSeguimiento(){
       // ¿Hay un transportador INTERNO (con usuario en el sistema) que aún no entrega?
       // Los transportadores externos (EXT:) no tienen usuario y nunca confirmarán entrega,
       // así que en ese caso el solicitante puede confirmar el recibido directamente.
-      const hayTransportadorPendiente = !!(s.transportador) && !esExterno && !esMismoUsuarioDestino;
+      // Asignación directa (oficina → técnico, sale de su propio stock): el
+      // material ya está con quien lo asigna, así que no hay entrega que
+      // esperar — el destinatario puede confirmar el recibido de una vez.
+      const _esAsigDirecta = (s._esGrupo ? s._items : [s]).every(i=>/^Asignaci[oó]n directa a/m.test(i.notas||''));
+      const hayTransportadorPendiente = !!(s.transportador) && !esExterno && !esMismoUsuarioDestino && !_esAsigDirecta;
       acciones = `<div style="display:flex;flex-direction:column;gap:4px;">
         ${esMismoUsuarioDestino ? `<button onclick="confirmarRecepcionCompleta('${s._esGrupo?s._items.filter(i=>i.estado==='en_camino'||i.estado==='entregado').map(i=>i.id).join(','):s.id}')" class="btn-sm ![background:#16A871] ![color:white] !font-semibold">✅ Confirmar recepción</button>` : ''}
         ${!esMismoUsuarioDestino && !hayTransportadorPendiente && esSedeDest && esSolicitante && !esTransportador ? `<button onclick="${s._esGrupo?`confirmarRecibidoGrupo('${s._items.filter(i=>i.estado==='en_camino'||i.estado==='entregado').map(i=>i.id).join(',')}')`:`confirmarRecibido(${s.id})`}" class="btn-sm ![background:#EAF3DE] !text-[#166534]">✅ Confirmar recibido</button>` : ''}
-        ${!esMismoUsuarioDestino && !esExterno && esTransportador ? `<button onclick="${s._esGrupo?`confirmarEntregaGrupo('${s._items.filter(i=>i.estado==='en_camino').map(i=>i.id).join(',')}')`:`abrirConfirmarEntrega(${s.id})`}" class="btn-sm ![background:#EDE9FE] !text-[#5B21B6]">📦 Confirmar entrega</button>` : ''}
+        ${!esMismoUsuarioDestino && !esExterno && esTransportador && !_esAsigDirecta ? `<button onclick="${s._esGrupo?`confirmarEntregaGrupo('${s._items.filter(i=>i.estado==='en_camino').map(i=>i.id).join(',')}')`:`abrirConfirmarEntrega(${s.id})`}" class="btn-sm ![background:#EDE9FE] !text-[#5B21B6]">📦 Confirmar entrega</button>` : ''}
         ${hayTransportadorPendiente && esSedeDest && esSolicitante ? `<span class="!text-[11px] !text-[#94A3B8] ![font-style:italic]">Esperando que ${escU(s.transportador)} confirme la entrega…</span>` : ''}
         ${puedeCancelar ? `<button onclick="abrirCancelarDespacho('${s._esGrupo ? s._items.filter(i=>i.estado==='en_camino').map(i=>i.id).join(',') : s.id}')" class="btn-sm ![background:#FEF2F2] !text-[#B91C1C]">✕ Cancelar despacho</button>` : ''}
       </div>`;
