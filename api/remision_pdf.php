@@ -334,6 +334,17 @@ if ($action === 'generar') {
                     ? "<a href='https://maps.google.com/?q={$lat},{$lng}' target='_blank' style='color:#0369A1;'>📍 Ver ubicación en el mapa ({$lat}, {$lng})</a>"
                     : "<span style='color:#94A3B8;'>Sin ubicación GPS registrada</span>");
 
+            // Observaciones escritas al registrar el gasto (de cualquier producto del lote):
+            // "Lugar: X — motivo" (productos normales) o "… · Nota: texto" (ONT / material recogido).
+            $obsGasto = [];
+            foreach ($rows as $rowO) {
+                $dO = (string)($rowO['descripcion'] ?? '');
+                if (preg_match('/·\s*Nota:\s*(.+)$/su', $dO, $mO)) $obsGasto[] = trim($mO[1]);
+                elseif (preg_match('/^Lugar:[^\n]*?\s—\s(.+)$/su', $dO, $mO)) $obsGasto[] = trim($mO[1]);
+            }
+            $obsGasto = array_values(array_unique(array_filter($obsGasto)));
+            $obsGastoBox = $obsGasto ? "<div class='ibox'><strong>📝 Observaciones:</strong><br>" . nl2br(htmlspecialchars(implode("\n", $obsGasto))) . "</div>" : '';
+
             $tablaItems = '';
             foreach ($rows as $row) {
                 $cant = $row['cantidad'];
@@ -375,6 +386,7 @@ if ($action === 'generar') {
                 </tr>
               </tbody>
             </table>
+            {$obsGastoBox}
 
             <div class='firmas'>
               <div class='firma'><div class='firma-linea'>
@@ -463,7 +475,7 @@ if ($action === 'generar') {
         // de esas notas — sin esto, "Solicitado por" quedaba en "—" aunque
         // el pedido sí tuviera un destinatario exacto.
         $destinatarioDirectoPdf = '';
-        if (preg_match('/Recoge en persona:\s*(.+)$/m', $notasDespacho, $mDestPdfG)) {
+        if (preg_match('/Recoge en persona:\s*(.+?)(?:\s+·\s+.*)?$/mu', $notasDespacho, $mDestPdfG)) {
             $destinatarioDirectoPdf = trim($mDestPdfG[1]);
         } elseif (preg_match('/Destinatario ONT:\s*(.+)$/m', $notasDespacho, $mDestPdfG2)) {
             $destinatarioDirectoPdf = trim($mDestPdfG2[1]);
