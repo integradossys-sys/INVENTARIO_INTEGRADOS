@@ -106,7 +106,7 @@ if ($method === 'GET' && $action === 'listar') {
             // persona elegida): los ve la oficina destino; si no, nadie podría confirmar el recibido.
             if ($sede !== '' && $r['destino'] === $sede && empty($r['solicitado_por'])
                 && strpos((string)($r['notas'] ?? ''), 'Recoge en persona:') === false) return true;
-            if (preg_match('/Recoge en persona:\s*(.+)$/m', $r['notas'] ?? '', $m)
+            if (preg_match('/Recoge en persona:\s*(.+?)(?:\s+·\s+.*)?$/mu', $r['notas'] ?? '', $m)
                 && mb_strtolower(trim($m[1])) === $yoL) return true;
             return false;
         }));
@@ -535,7 +535,7 @@ if ($method === 'POST' && $action === 'en_camino') {
             }
             if ($ontSolicitante) {
                 if (in_array($ontSolicitanteRol, ['superadmin', 'distribuidor'])) {
-                    if (preg_match('/Recoge en persona:\s*(.+)$/m', $s['notas'] ?? '', $mOnt)) {
+                    if (preg_match('/Recoge en persona:\s*(.+?)(?:\s+·\s+.*)?$/mu', $s['notas'] ?? '', $mOnt)) {
                         $ontUsuarioDestino = trim($mOnt[1]);
                     } elseif (!empty($transportador) && !str_starts_with($transportador, 'EXT:')) {
                         // No se eligió destinatario al CREAR el envío, pero sí
@@ -1225,7 +1225,7 @@ if ($method === 'POST' && $action === 'recibido') {
     // debe poder aceptarlo otra persona solo por estar en la misma oficina.
     $tieneDestinatarioEspecifico = false;
     $destinatarioEspecificoNombre = null;
-    if (preg_match('/Recoge en persona:\s*(.+)$/m', $s['notas'] ?? '', $mDestElegido)) {
+    if (preg_match('/Recoge en persona:\s*(.+?)(?:\s+·\s+.*)?$/mu', $s['notas'] ?? '', $mDestElegido)) {
         $tieneDestinatarioEspecifico = true;
         $destinatarioEspecificoNombre = trim($mDestElegido[1]);
     }
@@ -1348,7 +1348,7 @@ if ($method === 'POST' && $action === 'recibido') {
         // persona: X" en las notas), el carrete queda a su nombre — si no,
         // queda a nivel de oficina (usuario_actual = NULL), como antes.
         $usuarioCarreteCompleto = null;
-        if (preg_match('/Recoge en persona:\s*(.+)$/m', $s['notas'] ?? '', $mCarreteC)) {
+        if (preg_match('/Recoge en persona:\s*(.+?)(?:\s+·\s+.*)?$/mu', $s['notas'] ?? '', $mCarreteC)) {
             $usuarioCarreteCompleto = trim($mCarreteC[1]);
         }
         // Sin persona elegida: queda a nombre de quien lo recibe (si no es admin/distribuidor),
@@ -1436,7 +1436,7 @@ if ($method === 'POST' && $action === 'recibido') {
         }
         // Envío directo (enviar_metros, sin pasar por solicitud) — revisa
         // si se eligió un destinatario específico al enviar.
-        if (!$usuarioCarrete && preg_match('/Recoge en persona:\s*(.+)$/m', $s['notas'] ?? '', $mFibDir)) {
+        if (!$usuarioCarrete && preg_match('/Recoge en persona:\s*(.+?)(?:\s+·\s+.*)?$/mu', $s['notas'] ?? '', $mFibDir)) {
             $usuarioCarrete = trim($mFibDir[1]);
         }
         // Si no hay dueño, o el solicitante es admin/distribuidor, el carrete queda a nombre de quien lo recibe
@@ -1729,7 +1729,7 @@ if ($method === 'POST' && $action === 'recibido') {
                     $usuarioReceptor = null;
                 }
             }
-            if (!$usuarioReceptor && preg_match('/Recoge en persona:\s*(.+)$/m', $s['notas'] ?? '', $mDest)) {
+            if (!$usuarioReceptor && preg_match('/Recoge en persona:\s*(.+?)(?:\s+·\s+.*)?$/mu', $s['notas'] ?? '', $mDest)) {
                 $usuarioReceptor = trim($mDest[1]);
             }
             if (!$usuarioReceptor) $usuarioReceptor = $_SESSION['usuario'] ?? null;
@@ -1895,7 +1895,7 @@ if ($method === 'POST' && $action === 'recibido') {
         // Envío directo sin solicitud de por medio (ej: fibra enviada
         // directo a una persona) — revisa si se eligió un destinatario
         // específico al crear el envío ("Recoge en persona: X" en notas).
-        if (!$usuarioDestinoHist && preg_match('/Recoge en persona:\s*(.+)$/m', $s['notas'] ?? '', $mHistGen)) {
+        if (!$usuarioDestinoHist && preg_match('/Recoge en persona:\s*(.+?)(?:\s+·\s+.*)?$/mu', $s['notas'] ?? '', $mHistGen)) {
             $usuarioDestinoHist = trim($mHistGen[1]);
         }
         if ($usuarioDestinoHist && !in_array('usuario_destino', $hcols)) {
