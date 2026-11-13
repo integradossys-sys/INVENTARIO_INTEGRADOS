@@ -950,7 +950,7 @@ function updateNotifBadges(){
       if(!['en_camino','entregado'].includes(s.estado)) return false;
       if(!sedes.includes(s.destino)) return false;
       if(s.transportador===sesion?.usuario) return false;
-      const mDestEspecifico = (s.notas||'').match(/Recoge en persona:\s*(.+)$/m);
+      const mDestEspecifico = (s.notas||'').match(/Recoge en persona:\s*(.+?)(?:\s+·\s+.*)?$/mu);
       if(mDestEspecifico) return mDestEspecifico[1].trim() === sesion?.usuario;
       return true;
     })).length;
