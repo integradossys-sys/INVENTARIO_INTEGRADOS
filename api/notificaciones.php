@@ -245,7 +245,7 @@ function notificarAsignacionDirecta($pdo, int $seguimientoId): string {
         $seg = $s->fetch();
         if (!$seg) return 'no_aplica';
 
-        if (!preg_match('/Recoge en persona:\s*(.+)$/m', $seg['notas'] ?? '', $m)) return 'no_aplica';
+        if (!preg_match('/Recoge en persona:\s*(.+?)(?:\s+·\s+.*)?$/mu', $seg['notas'] ?? '', $m)) return 'no_aplica';
         $aQuien = trim($m[1]);
         if (!$aQuien) return 'no_aplica';
 
@@ -310,7 +310,7 @@ function notificarAsignacionDirectaMultiple($pdo, array $seguimientoIds, string 
         // mismo lote, cada quien recibe su propio correo con SUS productos.
         $grupos = [];
         foreach ($filas as $seg) {
-            if (!preg_match('/Recoge en persona:\s*(.+)$/m', $seg['notas'] ?? '', $m)) continue;
+            if (!preg_match('/Recoge en persona:\s*(.+?)(?:\s+·\s+.*)?$/mu', $seg['notas'] ?? '', $m)) continue;
             $aQuien = trim($m[1]);
             if (!$aQuien) continue;
             $grupos[$aQuien][] = $seg;
