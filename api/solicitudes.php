@@ -238,7 +238,7 @@ if ($method === 'POST' && $action === 'aprobar') {
         $aprobadorRol = $_SESSION['rol'] ?? '';
         $esAprobadorAdmin = in_array($aprobadorRol, ['superadmin', 'distribuidor']);
 
-        if ($tienePermisoEnvio && $solicitante && !$esEscalada && !$esAprobadorAdmin) {
+        if ($tienePermisoEnvio && $solicitante && !$esEscalada && !$esAprobadorAdmin && !$esOnt && !$esEquipo) {
             $stockActual = stockUsuarioObtener($pdo, $p['id'], $solicitante);
             if ($stockActual < $cant) {
                 responder(['error' => 'Stock insuficiente en tu inventario personal'], 400);
