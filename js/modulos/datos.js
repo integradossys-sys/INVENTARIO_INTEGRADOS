@@ -2069,12 +2069,12 @@ async function _confirmarTransporteDevolucion(){
       const cantRecogido = parseInt(document.getElementById('tdDevCantidad')?.value) || undefined;
       res = await _api('productos','devolver_recogido',{id, transportador, notas, cantidad:cantRecogido});
     } else if(tipo==='stock'){
-      res = await _api('productos','devolver',{destino_tipo:_destTipoDev(), destino_sede:_destSedeDev(), ref:_pendienteDevolverStock.ref, cantidad:_pendienteDevolverStock.cantidad, motivo:notas||_pendienteDevolverStock.motivo, transportador, rollo_ids:_pendienteDevolverStock.rollo_ids});
+      res = await _api('productos','devolver',{destino_tipo:_destTipoDev(), destino_sede:_destSedeDev(), ref:_pendienteDevolverStock.ref, cantidad:_pendienteDevolverStock.cantidad, motivo:notas||_pendienteDevolverStock.motivo, transportador, rollo_ids:_pendienteDevolverStock.rollo_ids, rollo_metros:_pendienteDevolverStock.rollo_metros});
     } else if(tipo==='stock_multiple'){
       const loteDevMultiple = `dm_${Date.now()}`;
       const _recs = _pendienteDevolverStock.recogidos || [];
       const resultados = await Promise.allSettled([
-        ..._pendienteDevolverStock.items.map(([ref,cant]) => _api('productos','devolver',{destino_tipo:_destTipoDev(), destino_sede:_destSedeDev(), ref,cantidad:cant,motivo:notas||_pendienteDevolverStock.motivo,transportador,rollo_ids:_pendienteDevolverStock.rollos?.[ref]||undefined,lote_id:loteDevMultiple})),
+        ..._pendienteDevolverStock.items.map(([ref,cant]) => _api('productos','devolver',{destino_tipo:_destTipoDev(), destino_sede:_destSedeDev(), ref,cantidad:cant,motivo:notas||_pendienteDevolverStock.motivo,transportador,rollo_ids:_pendienteDevolverStock.rollos?.[ref]||undefined,rollo_metros:_pendienteDevolverStock.rollosMetros?.[ref]||undefined,lote_id:loteDevMultiple})),
         ..._recs.map(r => _api('productos','devolver_recogido',{id:r.id, transportador, notas:notas||_pendienteDevolverStock.motivo, cantidad:r.cantidad})),
         ...(_pendienteDevolverStock.fibra||[]).map(f => fetch('api/fibra.php?action=devolver_metros',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({carrete_id:f.carrete_id, metros:f.cantidad, descripcion:notas||_pendienteDevolverStock.motivo, transportador, lote_id:loteDevMultiple, destino_tipo:_destTipoDev(), destino_sede:_destSedeDev()})}).then(r=>r.json()).then(j=>{ if(j.error) throw new Error(j.error); return j; }))
       ]);
