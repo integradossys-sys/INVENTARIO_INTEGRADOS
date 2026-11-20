@@ -889,9 +889,11 @@ async function abrirDevolverProducto(idx){
     const rollos = window._devolverMisRollos;
     cont.innerHTML = rollos.length
       ? rollos.map((r,i)=>`
-          <label class="!flex !items-center !gap-[8px] !text-[13px] !cursor-pointer !p-[4px]">
+          <label class="!flex !items-center !gap-[8px] !text-[13px] !cursor-pointer !p-[4px] !flex-wrap">
             <input type="checkbox" value="${r.id}" data-metros="${r.metros_disponibles}" onchange="_devolverRollosActualizar()">
-            Rollo ${i+1} — ${parseFloat(r.metros_disponibles).toFixed(1)} m disponibles
+            <span>Rollo ${i+1} — ${parseFloat(r.metros_disponibles).toFixed(1)} m disponibles</span>
+            <span id="devRolMtWrap_${r.id}" style="display:none;margin-left:auto;align-items:center;gap:4px;font-size:12px;">devolver
+              <input type="number" id="devRolMt_${r.id}" min="1" max="${Math.floor(parseFloat(r.metros_disponibles))}" value="${Math.floor(parseFloat(r.metros_disponibles))}" oninput="_devolverRollosActualizar(true)" onclick="event.stopPropagation()" class="inp" style="width:80px;padding:3px 6px;"> m</span>
           </label>`).join('')
       : '<div class="!text-[12px] !text-[#94A3B8]">No tienes rollos disponibles</div>';
     _devolverRollosActualizar();
@@ -904,9 +906,23 @@ async function abrirDevolverProducto(idx){
   document.getElementById('modalDevolver').classList.add('open');
 }
 function _devolverRollosActualizar(){
-  const marcados = [...document.querySelectorAll('#devolverRolloCheckList input:checked')];
+  const marcados = [...document.querySelectorAll('#devolverRolloCheckList input[type="checkbox"]:checked')];
   window._devolverRolloIdsElegidos = marcados.map(el=>el.value);
-  const totalMetros = marcados.reduce((s,el)=>s+parseFloat(el.dataset.metros||0),0);
+  window._devolverRolloMetros = {};
+  let totalMetros = 0;
+  document.querySelectorAll('#devolverRolloCheckList input[type="checkbox"]').forEach(el=>{
+    const w = document.getElementById('devRolMtWrap_'+el.value);
+    if(w) w.style.display = el.checked ? 'inline-flex' : 'none';
+  });
+  marcados.forEach(el=>{
+    const disp = parseFloat(el.dataset.metros||0);
+    const inp = document.getElementById('devRolMt_'+el.value);
+    let m = inp ? parseFloat(inp.value) : disp;
+    if(!(m>0)) m = 0;
+    if(m > disp) m = disp;
+    if(m < disp - 0.001) window._devolverRolloMetros[el.value] = m;
+    totalMetros += m;
+  });
   document.getElementById('cantidadDevolver').value = Math.round(totalMetros);
 }
 let _pendienteDevolverStock = null;
@@ -918,7 +934,7 @@ async function confirmarDevolver(){
   const motivo=(document.getElementById('motivoDevolver').value||'').trim();
   if(!cantidad||cantidad<=0){ toast('Escribe una cantidad válida','error'); return; }
   cerrarModal('modalDevolver');
-  _pendienteDevolverStock = {ref:p.ref, cantidad, motivo, rollo_ids: esPorRollo ? window._devolverRolloIdsElegidos : undefined};
+  _pendienteDevolverStock = {ref:p.ref, cantidad, motivo, rollo_ids: esPorRollo ? window._devolverRolloIdsElegidos : undefined, rollo_metros: esPorRollo ? (window._devolverRolloMetros||{}) : undefined};
   document.getElementById('tdDevTipo').value = 'stock';
   document.getElementById('tdDevId').value = '';
   document.getElementById('tdDevCantidadWrap').style.display = 'none';
