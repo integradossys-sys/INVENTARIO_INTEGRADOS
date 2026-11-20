@@ -2083,7 +2083,7 @@ let _dmCantidades = {}, _dmProds = [], _dmFiltro = '';
 function abrirDevolverMultiple(){
   _dmCantidades = {};
   _dmRollosCache = {};
-  _dmRolloIdsElegidos = {};
+  _dmRolloIdsElegidos = {}; _dmRolloMetros = {};
   _dmProds = getProductos().filter(p => _stockMiSede(p) > 0); // solo lo que tienes en sede
   _dmFiltro = '';
   const buscador = document.getElementById('dmBuscador');
@@ -2226,10 +2226,21 @@ async function _dmCargarRollosSiAplica(ref){
   }catch(e){ _dmRollosCache[ref] = []; }
   dmRenderCarrito();
 }
+let _dmRolloMetros = {}; // [ref] = {rolloId: metros} (solo los parciales)
 function _dmRollosActualizar(ref){
   const marcados = [...document.querySelectorAll(`#dmItem_${ref} input[type="checkbox"]:checked`)];
   _dmRolloIdsElegidos[ref] = marcados.map(el=>el.value);
-  const totalMetros = marcados.reduce((s,el)=>s+parseFloat(el.dataset.metros||0),0);
+  _dmRolloMetros[ref] = {};
+  let totalMetros = 0;
+  marcados.forEach(el=>{
+    const disp = parseFloat(el.dataset.metros||0);
+    const inp = document.getElementById('dmRolMt_'+el.value);
+    let m = inp ? parseFloat(inp.value) : disp;
+    if(!(m>0)) m = disp;
+    if(m > disp) m = disp;
+    if(m < disp - 0.001) _dmRolloMetros[ref][el.value] = m;
+    totalMetros += m;
+  });
   _dmCantidades[ref] = Math.round(totalMetros);
   dmRenderCarrito();
 }
@@ -2268,9 +2279,10 @@ function dmRenderCarrito(){
       <div class="!mt-[8px] !pt-[8px] ![border-top:1px_dashed_#BFDBFE]">
         <div class="!text-[10px] !text-[#64748B] !mb-[4px]">¿Cuáles rollos?</div>
         ${rollosDeEste.length ? rollosDeEste.map((r,i)=>`
-          <label class="!flex !items-center !gap-[6px] !text-[11px] !cursor-pointer !p-[3px_0]">
+          <label class="!flex !items-center !gap-[6px] !text-[11px] !cursor-pointer !p-[3px_0] !flex-wrap">
             <input type="checkbox" value="${r.id}" data-metros="${r.metros_disponibles}" ${(_dmRolloIdsElegidos[ref]||[]).includes(String(r.id))?'checked':''} onchange="_dmRollosActualizar('${ref}')">
             Rollo ${i+1} — ${parseFloat(r.metros_disponibles).toFixed(1)} m
+            ${(_dmRolloIdsElegidos[ref]||[]).includes(String(r.id)) ? `<span style="margin-left:auto;display:inline-flex;align-items:center;gap:4px;">devolver <input type="number" id="dmRolMt_${r.id}" min="1" max="${Math.floor(parseFloat(r.metros_disponibles))}" value="${(_dmRolloMetros[ref]&&_dmRolloMetros[ref][r.id]!=null)?_dmRolloMetros[ref][r.id]:Math.floor(parseFloat(r.metros_disponibles))}" onclick="event.stopPropagation()" onchange="_dmRollosActualizar('${ref}')" class="inp" style="width:70px;padding:2px 5px;font-size:11px;"> m</span>` : ''}
           </label>`).join('') : '<div class="!text-[11px] !text-[#94A3B8]">No tienes rollos disponibles</div>'}
       </div>` : '';
     return `<div id="dmItem_${ref}" style="padding:10px 12px;border-radius:10px;border:1.5px solid ${borde};background:${fondo};">
@@ -2877,7 +2889,7 @@ async function confirmarDevolverMultiple(){
 
   cerrarModal('modalDevolverMultiple');
   const fibraPend = itemsFibra.map(([ref,cant])=>{ const q=_dmProds.find(x=>x.ref===ref); return {carrete_id:q._carreteId, cantidad:cant, nombre:q.nombre}; });
-  _pendienteDevolverStock = {items, recogidos: itemsRec, fibra: fibraPend, motivo, rollos: {..._dmRolloIdsElegidos}};
+  _pendienteDevolverStock = {items, recogidos: itemsRec, fibra: fibraPend, motivo, rollos: {..._dmRolloIdsElegidos}, rollosMetros: {..._dmRolloMetros}};
   document.getElementById('tdDevTipo').value = 'stock_multiple';
   document.getElementById('tdDevId').value = '';
   const destinoTxtDevM = 'el destino que elijas';
@@ -3339,7 +3351,8 @@ async function confirmarGastoMultiple(){
             cliente_direccion: lugar,
             tecnico_instalador: sesion.usuario,
             lat: lat || undefined, lng: lng || undefined,
-            lote_id: loteGastoMultiple
+            lote_id: loteGastoMultiple,
+            nota: motivo || undefined
           })
         }).then(r=>r.json());
       }
@@ -3347,7 +3360,7 @@ async function confirmarGastoMultiple(){
         return _api('fibra','registrar_gasto_fibra',{carrete_id:p._carreteId, metros:cant, descripcion:motivo||lugar, sede_destino:lugar, lat, lng, lote_id:loteGastoMultiple, proyecto_cliente:proyectoCliente||undefined});
       }
       if(p?._esRecogido){
-        return _api('productos','gastar_recogido',{id:p._recogidoId, lugar, lat, lng, proyecto_cliente:proyectoCliente||undefined, lote_id:loteGastoMultiple});
+        return _api('productos','gastar_recogido',{id:p._recogidoId, lugar, lat, lng, proyecto_cliente:proyectoCliente||undefined, lote_id:loteGastoMultiple, nota:motivo||undefined});
       }
       return _api('pedidos','gastar',{ref,cantidad:cant,motivo,lugar,lat,lng,rollo_id:_gmRolloElegido[ref]||undefined,lote_id:loteGastoMultiple,proyecto_cliente:proyectoCliente||undefined});
     })
