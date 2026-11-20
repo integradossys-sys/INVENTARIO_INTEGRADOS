@@ -228,7 +228,16 @@ async function init(){
   // ver reutilizable/dañado de TODOS los usuarios, no solo lo propio.
   if(rol==='superadmin'||rol==='distribuidor'){mostrar('recogidoadmin');secAdmin();}
   // Informes — superadmin y distribuidor
-  if(rol==='superadmin'||rol==='distribuidor'){mostrar('informes');secAdmin();}
+  // (o cualquiera con el permiso "ver_informes" / "auditar_inventario", solo lectura)
+  { const _verInf = rol==='superadmin'||rol==='distribuidor'||tienePermiso('ver_informes')||tienePermiso('auditar_inventario');
+    if(_verInf){mostrar('informes');secAdmin();}
+    // Las pestañas de dinero quedan solo para superadmin/distribuidor
+    const _admInf = rol==='superadmin'||rol==='distribuidor';
+    ['tabInfVentas','tabInfProveedores','tabInfMargen'].forEach(id=>{const b=document.getElementById(id); if(b) b.style.display=_admInf?'':'none';});
+    // Quien solo tiene "auditar_inventario" no ve las pestañas generales
+    const _gen = _admInf||tienePermiso('ver_informes');
+    ['tabInfPedidos','tabInfIncidencias','tabInfOnts','tabInfGastos'].forEach(id=>{const b=document.getElementById(id); if(b) b.style.display=_gen?'':'none';});
+  }
   // La pestaña de auditoría por persona, dentro de Informes, es aparte:
   // superadmin siempre, cualquier otro rol solo con el permiso explícito.
   const tabAudPersona = document.getElementById('tabInfAuditoria');
