@@ -14,7 +14,18 @@
 require 'config.php';
 require_once 'auditoria.php';
 sesionRequerida();
-rolRequerido('superadmin', 'distribuidor');
+// Acceso: superadmin/distribuidor, o quien tenga el permiso "ver_informes"
+// (solo lectura — p.ej. una auditora). Las pestañas de dinero (ventas,
+// proveedores, margen) siguen siendo solo de superadmin/distribuidor, y la
+// auditoría por persona se rige por su propio permiso "auditar_inventario".
+$_accInf = $_GET['action'] ?? '';
+if (in_array($_accInf, ['auditoria_persona', 'guardar_auditoria', 'listar_auditorias', 'obtener_auditoria'], true)) {
+    rolOPermisoAlt(['superadmin', 'distribuidor'], ['auditar_inventario']);
+} elseif (in_array($_accInf, ['ventas', 'proveedores_informe', 'costos_vs_ventas'], true)) {
+    rolRequerido('superadmin', 'distribuidor');
+} else {
+    rolOPermiso(['superadmin', 'distribuidor'], 'ver_informes');
+}
 
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? '';
