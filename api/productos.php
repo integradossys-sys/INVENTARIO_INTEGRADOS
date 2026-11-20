@@ -544,6 +544,28 @@ if ($method === 'POST' && $action === 'devolver') {
         if (count($encontrados) !== count($rolloIds)) responder(['error' => 'Uno o más rollos no son tuyos o no existen'], 404);
     }
 
+    // Rollos: se puede devolver un rollo COMPLETO (con los metros que le queden)
+    // o solo una PARTE de sus metros ("rollo_metros": {id: metros}). Aquí se
+    // calcula la cantidad real desde la base de datos y se prepara el corte.
+    $rolloMetros = (array)($data['rollo_metros'] ?? []);
+    $planCorte = [];
+    if ($rolloIds) {
+        $ph3 = implode(',', array_fill(0, count($rolloIds), '?'));
+        $stRd = $pdo->prepare("SELECT id, codigo, metros, metros_usados, sede_id, sede_nombre, registrado_por FROM producto_rollos WHERE id IN ($ph3)");
+        $stRd->execute(array_values($rolloIds));
+        $sumaMetros = 0.0;
+        foreach ($stRd->fetchAll() as $rd) {
+            $disp = (float)$rd['metros'] - (float)$rd['metros_usados'];
+            $m = isset($rolloMetros[$rd['id']]) ? (float)$rolloMetros[$rd['id']] : $disp;
+            if ($m <= 0) responder(['error' => 'Los metros a devolver de cada rollo deben ser mayores a 0'], 400);
+            if ($m > $disp + 0.001) responder(['error' => 'No puedes devolver más metros de los que tiene ese rollo (' . round($disp, 1) . ' m)'], 400);
+            if ($m < $disp - 0.001) $planCorte[(int)$rd['id']] = ['m' => $m, 'fila' => $rd];
+            $sumaMetros += min($m, $disp);
+        }
+        $cant = (int)round($sumaMetros);
+        if ($cant <= 0) responder(['error' => 'Cantidad inválida'], 400);
+    }
+
     // Verificar que la persona realmente tenga esa cantidad disponible para devolver
     $stockActual = stockUsuarioObtener($pdo, $p['id'], $usuario);
     if ($cant > $stockActual) {
@@ -575,6 +597,18 @@ if ($method === 'POST' && $action === 'devolver') {
     // confirmen recibidos en destino, momento en que se transfieren
     // completos con su misma identidad (no se crean genéricos nuevos).
     $notaRollo = '';
+    // Devolución PARCIAL de un rollo: se le restan esos metros al rollo del técnico
+    // y se crea un rollo nuevo con solo esos metros, que es el que viaja.
+    if ($planCorte) {
+        $rolloIds = array_values($rolloIds);
+        foreach ($planCorte as $rid => $pl) {
+            $pdo->prepare("UPDATE producto_rollos SET metros = metros - ? WHERE id = ?")->execute([$pl['m'], $rid]);
+            $pdo->prepare("INSERT INTO producto_rollos (producto_id, codigo, metros, metros_usados, sede_id, sede_nombre, usuario_actual, estado, registrado_por) VALUES (?,?,?,?,?,?,NULL,'en_transito',?)")
+                ->execute([$p['id'], $pl['fila']['codigo'], $pl['m'], 0, $pl['fila']['sede_id'], $pl['fila']['sede_nombre'], $pl['fila']['registrado_por']]);
+            $nuevoId = (int)$pdo->lastInsertId();
+            foreach ($rolloIds as $k => $v) { if ((int)$v === $rid) $rolloIds[$k] = $nuevoId; }
+        }
+    }
     if ($rolloIds) {
         $ph2 = implode(',', array_fill(0, count($rolloIds), '?'));
         $pdo->prepare("UPDATE producto_rollos SET estado = 'en_transito', usuario_actual = NULL WHERE id IN ($ph2)")->execute($rolloIds);
@@ -839,6 +873,7 @@ if ($method === 'POST' && $action === 'gastar_recogido') {
     // Igual que en "pedidos/gastar": si viene de "Gasto múltiple", comparte
     // lote_id con los demás productos del lote, para el PDF combinado.
     $loteId = trim($data['lote_id'] ?? '') ?: null;
+    $notaGasto = mb_substr(trim($data['nota'] ?? ''), 0, 500); // observación opcional
     if (!$id) responder(['error' => 'ID requerido'], 400);
     if (!$lugar) responder(['error' => 'El lugar de uso es requerido'], 400);
 
@@ -869,7 +904,7 @@ if ($method === 'POST' && $action === 'gastar_recogido') {
         $pdo->prepare("
             INSERT INTO historial (ref, nombre, destino, cantidad, unidad_envio, enviado_por, descripcion, estado, es_gasto, origen, fecha, usuario_destino, gps_lat, gps_lng, proyecto_cliente, pedido_agrupado_id)
             VALUES (?, ?, ?, ?, 'unidad', ?, ?, 'aprobado', 1, 'gasto_recogido', NOW(), ?, ?, ?, ?, ?)
-        ")->execute([$row['ref'], $row['nombre'], $_SESSION['usuario'], $cantidadGastar, $_SESSION['usuario'], "Gasto de material recogido — Lugar: $lugar", $_SESSION['usuario'], $lat, $lng, $proyectoCliente, $loteId]);
+        ")->execute([$row['ref'], $row['nombre'], $_SESSION['usuario'], $cantidadGastar, $_SESSION['usuario'], "Gasto de material recogido — Lugar: $lugar" . ($notaGasto !== '' ? " · Nota: $notaGasto" : ''), $_SESSION['usuario'], $lat, $lng, $proyectoCliente, $loteId]);
     } catch (\Throwable $e) {}
 
     auditar($pdo, 'gastar_recogido', 'productos', "Gastado material recogido: {$row['nombre']} x{$row['cantidad']} en $lugar", $row['ref']);
