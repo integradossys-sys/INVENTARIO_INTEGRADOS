@@ -1531,6 +1531,8 @@ if ($method === 'POST' && $action === 'instalar_ont') {
     // Historial, el botón "PDF" abre el comprobante COMBINADO con todo lo
     // del lote (antes esto se quedaba fuera y salía en un PDF aparte).
     $loteId = trim($data['lote_id'] ?? '') ?: null;
+    // Observación opcional de quien instala (sale en Historial y en el PDF)
+    $notaInst = mb_substr(trim($data['nota'] ?? ''), 0, 500);
 
     if (!$ont_id || !$cliente)
         responder(['error' => 'Datos incompletos'], 400);
@@ -1601,7 +1603,7 @@ if ($method === 'POST' && $action === 'instalar_ont') {
     // etc.), para que se pueda ver todo en un solo lugar.
     try {
         $refOnt = 'ONT::' . ($o['modelo'] ?: '');
-        $descInst = "Instalada en \"$cliente\"" . ($direccion ? " — $direccion" : '') . " · Instaló: $tecnico";
+        $descInst = "Instalada en \"$cliente\"" . ($direccion ? " — $direccion" : '') . " · Instaló: $tecnico" . ($notaInst !== '' ? " · Nota: $notaInst" : '');
         $pdo->prepare("INSERT INTO historial (ref,nombre,destino,cantidad,unidad_envio,enviado_por,descripcion,estado,es_gasto,origen,fecha,gps_lat,gps_lng,usuario_destino,pedido_agrupado_id,proyecto_cliente)
             VALUES (?,?,?,1,'unidad',?,?,'aprobado',1,'instalacion',NOW(),?,?,?,?,?)")
             ->execute([$refOnt, 'ONT ' . ($o['modelo'] ?: '') . ' — SN ' . ($o['sn'] ?: ''), $cliente, $usuario, $descInst, $lat, $lng, $tecnico, $loteId, $cliente]);
@@ -1867,7 +1869,7 @@ if ($method === 'POST' && $action === 'devolver_ont_almacen') {
     if (in_array($rol, ['tecnico', 'persona'])) {
         $destino = '';
         try {
-            $asig = $pdo->prepare("SELECT usuario FROM ont_historial WHERE ont_id = ? AND evento = 'asignada' AND usuario <> ? ORDER BY id DESC LIMIT 1");
+            $asig = $pdo->prepare("SELECT usuario FROM ont_historial WHERE ont_id = ? AND (evento = 'asignada' OR (evento = 'reasignada' AND detalle LIKE 'Propuesta como instalador%')) AND usuario <> ? ORDER BY id DESC LIMIT 1");
             $asig->execute([$ontId, $miUsuario]);
             $municipioAsigno = $asig->fetchColumn();
             if (!$municipioAsigno) {
@@ -1885,6 +1887,8 @@ if ($method === 'POST' && $action === 'devolver_ont_almacen') {
                 if (($rowMun['rol'] ?? '') === 'municipio') $receptorMunicipio = $municipioAsigno;
             }
         } catch (\Throwable $e) { error_log('[devolver_ont_almacen buscar municipio] ' . $e->getMessage()); }
+        // Si no se pudo saber quién la asignó, va a la sede donde está la ONT (no a la sede del técnico).
+        if (!$destino) $destino = trim($ont['sede_actual'] ?? '');
         if (!$destino) $destino = $_SESSION['sede'] ?? '';
     }
     if (in_array($rol, ['tecnico', 'persona']) && !$destino) responder(['error' => 'No se pudo determinar tu municipio'], 400);
