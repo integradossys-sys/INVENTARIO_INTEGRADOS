@@ -110,6 +110,7 @@ const PERMISOS_DISPONIBLES = {
   // Historial y reportes
   ver_historial:       "Ver historial de movimientos",
   ver_reportes:        "Ver y exportar reportes Excel",
+  ver_informes:        "Ver Informes (solo lectura): ONT por oficina, gastos, pedidos y material dañado. No incluye ventas ni proveedores",
 
   // ONT y Fibra
   registrar_ont:       "Ingreso de equipos/FO (escaneo de ONT, OLT, fibra)",
