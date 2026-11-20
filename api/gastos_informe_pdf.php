@@ -7,7 +7,13 @@ require_once 'config.php';
 require_once 'auditoria.php';
 require_once 'gastos_informe_lib.php';
 if (empty($_SESSION['usuario'])) { header('Location: ../index.html'); exit; }
-if (!in_array($_SESSION['rol'] ?? '', ['superadmin', 'distribuidor'], true)) {
+$_okInf = in_array($_SESSION['rol'] ?? '', ['superadmin', 'distribuidor'], true);
+if (!$_okInf) {
+    $_chkInf = $pdo->prepare("SELECT permisos FROM usuarios WHERE usuario = ?");
+    $_chkInf->execute([$_SESSION['usuario']]);
+    $_okInf = in_array('ver_informes', json_decode($_chkInf->fetchColumn() ?: '[]', true) ?: [], true);
+}
+if (!$_okInf) {
     http_response_code(403);
     echo '<h2 style="font-family:Arial;color:#B91C1C;padding:40px;">❌ Sin permisos para ver este informe.</h2>'; exit;
 }
