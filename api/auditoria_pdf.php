@@ -69,7 +69,7 @@ $totalCoinciden = 0; $totalDiferencia = 0; $totalSinContar = 0;
 foreach (($datos['items']['productos'] ?? []) as $it) {
     $esperado = floatval($it['esperado']);
     $real = $it['real'];
-    $suf = ($it['unidad'] ?? '') === 'metros' ? 'mts.' : 'uds.';
+    $suf = ($it['unidad'] ?? '') === 'metros' ? 'mts.' : (($it['unidad'] ?? '') === 'rollos' ? 'rollos' : 'uds.');
     if ($real === null || $real === '') {
         $totalSinContar++;
         $estadoTxt = 'Sin contar';
