@@ -889,6 +889,7 @@ async function abrirInstalarOnt(id){
   const _lstIC = document.getElementById('instalarOntClienteLista'); if(_lstIC) _lstIC.style.display='none';
   _cargarCatalogoProyectos();
   document.getElementById('instalarOntDireccion').value = '';
+  const _nI = document.getElementById('instalarOntNota'); if(_nI) _nI.value = '';
   document.getElementById('instalarOntLat').value = '';
   document.getElementById('instalarOntLng').value = '';
   const ubicStatus = document.getElementById('ubicacionInstalarStatus');
@@ -1009,12 +1010,13 @@ async function confirmarInstalarOnt(){
   const tecnico_instalador = document.getElementById('instalarOntTecnico').value.trim();
   const lat = document.getElementById('instalarOntLat').value.trim();
   const lng = document.getElementById('instalarOntLng').value.trim();
+  const nota = (document.getElementById('instalarOntNota')?.value || '').trim();
   if(!cliente_nombre){ toast('Elige el Cliente/Proyecto donde quedó instalada — es obligatorio','error'); return; }
   try{
     const res = await fetch('api/cajas.php?action=instalar_ont',{
       method:'POST', credentials:'same-origin',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ont_id, cliente_nombre, cliente_direccion, tecnico_instalador, lat: lat||undefined, lng: lng||undefined})
+      body: JSON.stringify({ont_id, cliente_nombre, cliente_direccion, tecnico_instalador, lat: lat||undefined, lng: lng||undefined, nota: nota||undefined})
     });
     const d = await res.json();
     if(!res.ok||d.error) throw new Error(d.error||'Error al marcar como instalada');
@@ -1658,6 +1660,14 @@ function _devolverOntAlmacen(id, etiqueta){
   _tdDevCargarUsuarios();
   _tdDevPonerDestino(true);
   document.getElementById('modalTransporteDevolucion').classList.add('open');
+  // El destino real es la sede de quien se la asignó, no la sede del técnico
+  if(sesion.rol==='tecnico'||sesion.rol==='persona'){
+    fetch('api/cajas.php?action=destino_devolver_ont&ont_id='+encodeURIComponent(id),{credentials:'same-origin'})
+      .then(r=>r.json()).then(j=>{
+        if(j&&j.destino && document.getElementById('tdDevId').value==String(id))
+          document.getElementById('tdDevSubtitulo').textContent = `${etiqueta} — queda en camino hasta que la confirmen recibida en ${j.destino}.`;
+      }).catch(()=>{});
+  }
 }
 function _abrirDevolverOnt(id, etiqueta, estadoActual, clienteActual){
   _devolverOntIdActual = id;
