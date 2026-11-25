@@ -795,7 +795,7 @@ function _destinoAsignablePorMi(u){
   if(['municipio','tecnico','persona'].includes(miRol) && ['superadmin','distribuidor'].includes(u.rol)) return false;
   return true;
 }
-function abrirAsignar(idx){
+async function abrirAsignar(idx){
   if(sesion?.rol==='distribuidor'){ toast('El distribuidor no asigna: solo entrega (usa Envío directo / Enviar a una oficina).','warn'); return; }
   const p=getProductos()[idx];if(!p)return;
   window._asignarIdx = idx;
@@ -815,7 +815,44 @@ function abrirAsignar(idx){
   // sueltos — se convierte a metros al confirmar.
   const lblCant = document.getElementById('asignarCantidadLabel');
   if(lblCant) lblCant.textContent = p.metrosPorUnidad ? 'Cantidad a asignar (rollos)' : 'Cantidad a asignar';
+  // Por rollo: se ELIGEN los rollos (y, si quiere, cuántos metros de cada uno)
+  window._asignarRolloIdsElegidos = []; window._asignarRolloMetros = {};
+  const rolloWrap = document.getElementById('asignarRolloWrap'), cantWrapA = document.getElementById('asignarCantidadWrap');
+  if(p.metrosPorUnidad){
+    rolloWrap.style.display = 'block'; cantWrapA.style.display = 'none';
+    let rollos = [];
+    try{
+      const res = await fetch(`api/productos.php?action=mis_rollos&ref=${encodeURIComponent(p.ref)}`, {credentials:'same-origin'});
+      const j = await res.json(); rollos = Array.isArray(j) ? j : [];
+    }catch(e){}
+    document.getElementById('asignarRolloCheckList').innerHTML = rollos.length
+      ? rollos.map((r,i)=>`
+          <label class="!flex !items-center !gap-[8px] !text-[13px] !cursor-pointer !p-[4px] !flex-wrap">
+            <input type="checkbox" value="${r.id}" data-metros="${r.metros_disponibles}" onchange="_asignarRollosActualizar()">
+            <span>Rollo ${i+1} — ${parseFloat(r.metros_disponibles).toFixed(1)} m disponibles</span>
+            <span id="asgRolMtWrap_${r.id}" style="display:none;margin-left:auto;align-items:center;gap:4px;font-size:12px;">asignar
+              <input type="number" id="asgRolMt_${r.id}" min="1" max="${Math.floor(parseFloat(r.metros_disponibles))}" value="${Math.floor(parseFloat(r.metros_disponibles))}" oninput="_asignarRollosActualizar()" onclick="event.stopPropagation()" class="inp" style="width:80px;padding:3px 6px;"> m</span>
+          </label>`).join('')
+      : '<div class="!text-[12px] !text-[#94A3B8] !p-[4px]">No tienes rollos disponibles</div>';
+  } else { rolloWrap.style.display = 'none'; cantWrapA.style.display = 'block'; }
   document.getElementById('modalAsignar').classList.add('open');
+}
+function _asignarRollosActualizar(){
+  const marcados = [...document.querySelectorAll('#asignarRolloCheckList input[type="checkbox"]:checked')];
+  window._asignarRolloIdsElegidos = marcados.map(el=>el.value);
+  window._asignarRolloMetros = {};
+  document.querySelectorAll('#asignarRolloCheckList input[type="checkbox"]').forEach(el=>{
+    const w = document.getElementById('asgRolMtWrap_'+el.value);
+    if(w) w.style.display = el.checked ? 'inline-flex' : 'none';
+  });
+  marcados.forEach(el=>{
+    const disp = parseFloat(el.dataset.metros||0);
+    const inp = document.getElementById('asgRolMt_'+el.value);
+    let m = inp ? parseFloat(inp.value) : disp;
+    if(!(m>0)) m = disp;
+    if(m > disp) m = disp;
+    if(m < disp - 0.001) window._asignarRolloMetros[el.value] = m;
+  });
 }
 let _asignarUsuariosCache = null;
 async function _asignarFiltrarUsuario(){
@@ -850,12 +887,16 @@ async function confirmarAsignar(){
   const cantidadInput = parseInt(document.getElementById('cantidadAsignar').value||'0');
   const nota = (document.getElementById('motivoAsignar').value||'').trim();
   if(!aQuien){ toast('Busca y elige a quién se lo asignas','error'); return; }
-  if(!cantidadInput||cantidadInput<=0){ toast('Escribe una cantidad válida','error'); return; }
+  if(p.metrosPorUnidad){
+    if(!(window._asignarRolloIdsElegidos||[]).length){ toast('Elige al menos un rollo','error'); return; }
+  } else if(!cantidadInput||cantidadInput<=0){ toast('Escribe una cantidad válida','error'); return; }
   // Si es "por rollo" (metrosPorUnidad), lo que se escribió son ROLLOS —
   // se convierte a metros antes de enviar, igual que en Enviar/Solicitar.
   const cantidad = p.metrosPorUnidad ? cantidadInput * p.metrosPorUnidad : cantidadInput;
   try{
-    const res = await _api('productos','asignar_a_persona',{ref:p.ref, cantidad, a_quien:aQuien, nota});
+    const res = await _api('productos','asignar_a_persona', p.metrosPorUnidad
+      ? {ref:p.ref, cantidad:1, a_quien:aQuien, nota, rollo_ids:window._asignarRolloIdsElegidos.map(Number), rollo_metros:window._asignarRolloMetros||{}}
+      : {ref:p.ref, cantidad, a_quien:aQuien, nota});
     if(res.error){ toast(res.error,'error'); return; }
     cerrarModal('modalAsignar');
     toast(`Asignado a ${aQuien} — queda en camino hasta que confirme recibido ✓`,'success');
