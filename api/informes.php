@@ -466,6 +466,33 @@ if ($method === 'GET' && $action === 'auditoria_persona') {
             $r['cantidad'] = (float)$r['cantidad'];
             return $r;
         }, $stmtProd->fetchAll());
+
+        // Productos "por rollo": se audita por ROLLOS (cuántos y cuántos
+        // metros tiene cada uno), no por los metros juntos.
+        $stRollos = $pdo->prepare("
+            SELECT r.id, r.metros, r.metros_usados
+            FROM producto_rollos r JOIN productos p ON p.id = r.producto_id
+            WHERE p.ref = ? AND r.usuario_actual = ? AND r.estado = 'disponible' AND (r.metros - r.metros_usados) > 0
+            ORDER BY r.id ASC
+        ");
+        foreach ($productos as &$pr) {
+            $stMpu = $pdo->prepare("SELECT metros_por_unidad FROM productos WHERE ref = ?");
+            $stMpu->execute([$pr['ref']]);
+            if ((float)$stMpu->fetchColumn() <= 0) continue;
+            $stRollos->execute([$pr['ref'], $usuario]);
+            $rs = $stRollos->fetchAll();
+            if (!$rs) continue;
+            $partes = [];
+            foreach ($rs as $i => $rr) {
+                $d = (float)$rr['metros'] - (float)$rr['metros_usados'];
+                $partes[] = 'Rollo ' . ($i + 1) . ': ' . rtrim(rtrim(number_format($d, 1, '.', ''), '0'), '.') . ' m';
+            }
+            $totalM = array_sum(array_map(fn($rr) => (float)$rr['metros'] - (float)$rr['metros_usados'], $rs));
+            $pr['nombre'] = $pr['nombre'] . ' — ' . implode(' · ', $partes) . ' (total ' . rtrim(rtrim(number_format($totalM, 1, '.', ''), '0'), '.') . ' m)';
+            $pr['cantidad'] = (float)count($rs);
+            $pr['unidad'] = 'rollos';
+        }
+        unset($pr);
     }
 
     // ONTs — tanto las que son de esta persona (dueña) como las que está
