@@ -1406,6 +1406,28 @@ if ($method === 'POST' && $action === 'asignar_a_persona') {
     // "en camino" hasta que la otra persona confirme que lo recibió.
     stockUsuarioAjustar($pdo, $p['id'], $usuario, -$cantidad);
 
+    // Producto "por rollo" asignado por METROS (sin elegir rollos): el que
+    // recibe termina con rollo(s) nuevos, así que a quien asigna hay que
+    // quitarle esos metros también de SUS rollos (del más viejo al más
+    // nuevo). Si no, su lista de rollos queda inflada frente a su stock.
+    $consumidosAsig = [];
+    if (!$rolloIds && !empty($p['metros_por_unidad'])) {
+        try {
+            $faltaAsig = (float)$cantidad;
+            $misR = $pdo->prepare("SELECT id, metros, metros_usados FROM producto_rollos WHERE producto_id = ? AND usuario_actual = ? AND estado = 'disponible' AND (metros - metros_usados) > 0 ORDER BY id ASC");
+            $misR->execute([$p['id'], $usuario]);
+            foreach ($misR->fetchAll() as $rr) {
+                if ($faltaAsig <= 0.0001) break;
+                $dispR = (float)$rr['metros'] - (float)$rr['metros_usados'];
+                $toma = min($dispR, $faltaAsig);
+                $pdo->prepare("UPDATE producto_rollos SET metros_usados = metros_usados + ? WHERE id = ?")->execute([$toma, $rr['id']]);
+                if (($dispR - $toma) <= 0.0001) $pdo->prepare("UPDATE producto_rollos SET estado = 'agotado' WHERE id = ?")->execute([$rr['id']]);
+                $consumidosAsig[] = [$rr['id'], $toma];
+                $faltaAsig -= $toma;
+            }
+        } catch (\Throwable $e) { error_log('[productos/asignar_a_persona consumir rollos] ' . $e->getMessage()); }
+    }
+
     // Si eran rollos completos elegidos a propósito, salen de tu lista
     // AHORA MISMO (quedan "en_transito") — si no, el receptor recibe
     // rollo(s) genéricos nuevos reconstruidos de los metros recibidos
@@ -1437,6 +1459,7 @@ if ($method === 'POST' && $action === 'asignar_a_persona') {
     } catch (\Throwable $e) {
         error_log('[productos/asignar_a_persona] ' . $e->getMessage());
         stockUsuarioAjustar($pdo, $p['id'], $usuario, $cantidad);
+        foreach ($consumidosAsig as [$cid, $cm]) { $pdo->prepare("UPDATE producto_rollos SET metros_usados = metros_usados - ?, estado = 'disponible' WHERE id = ?")->execute([$cm, $cid]); }
         if ($rolloIds) {
             $phR = implode(',', array_fill(0, count($rolloIds), '?'));
             $pdo->prepare("UPDATE producto_rollos SET estado = 'disponible', usuario_actual = ? WHERE id IN ($phR)")->execute([$usuario, ...$rolloIds]);
