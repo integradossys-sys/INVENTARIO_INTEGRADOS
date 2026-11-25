@@ -1385,9 +1385,18 @@ if ($method === 'POST' && $action === 'asignar_a_persona') {
         // sí tuviera esos 98 m disponibles). Se recalcula aquí en vez de
         // confiar en lo que mandó el navegador, para blindarlo también
         // contra cualquier redondeo del lado del cliente.
+        // Se puede asignar un rollo COMPLETO o solo una PARTE de sus metros
+        // ("rollo_metros": {id: metros}) — la parte se corta a un rollo nuevo.
+        $rolloMetrosA = (array)($data['rollo_metros'] ?? []);
+        $planCorteA = [];
         $cantidad = 0.0;
         foreach ($filasRollos as $fr) {
-            $cantidad += max(0, floatval($fr['metros']) - floatval($fr['metros_usados']));
+            $dispFr = max(0, floatval($fr['metros']) - floatval($fr['metros_usados']));
+            $mFr = isset($rolloMetrosA[$fr['id']]) ? floatval($rolloMetrosA[$fr['id']]) : $dispFr;
+            if ($mFr <= 0) responder(['error' => 'Los metros a asignar de cada rollo deben ser mayores a 0'], 400);
+            if ($mFr > $dispFr + 0.001) responder(['error' => 'No puedes asignar más metros de los que tiene ese rollo (' . round($dispFr, 1) . ' m)'], 400);
+            if ($mFr < $dispFr - 0.001) $planCorteA[(int)$fr['id']] = $mFr;
+            $cantidad += min($mFr, $dispFr);
         }
         if ($cantidad <= 0) responder(['error' => 'Ese rollo ya no tiene metros disponibles'], 400);
     } else {
@@ -1433,6 +1442,18 @@ if ($method === 'POST' && $action === 'asignar_a_persona') {
     // rollo(s) genéricos nuevos reconstruidos de los metros recibidos
     // (igual que cualquier otro envío "por rollo").
     $notaRollo = '';
+    if (!empty($planCorteA)) {
+        $rolloIds = array_values($rolloIds);
+        foreach ($planCorteA as $ridA => $mA) {
+            $filaA = $pdo->prepare("SELECT codigo, sede_id, sede_nombre, registrado_por FROM producto_rollos WHERE id = ?");
+            $filaA->execute([$ridA]); $fA = $filaA->fetch();
+            $pdo->prepare("UPDATE producto_rollos SET metros = metros - ? WHERE id = ?")->execute([$mA, $ridA]);
+            $pdo->prepare("INSERT INTO producto_rollos (producto_id, codigo, metros, metros_usados, sede_id, sede_nombre, usuario_actual, estado, registrado_por) VALUES (?,?,?,?,?,?,NULL,'en_transito',?)")
+                ->execute([$p['id'], $fA['codigo'], $mA, 0, $fA['sede_id'], $fA['sede_nombre'], $fA['registrado_por']]);
+            $nuevoIdA = (int)$pdo->lastInsertId();
+            foreach ($rolloIds as $kA => $vA) { if ((int)$vA === $ridA) $rolloIds[$kA] = $nuevoIdA; }
+        }
+    }
     if ($rolloIds) {
         $ph2 = implode(',', array_fill(0, count($rolloIds), '?'));
         $pdo->prepare("UPDATE producto_rollos SET estado = 'en_transito', usuario_actual = NULL WHERE id IN ($ph2)")->execute($rolloIds);
