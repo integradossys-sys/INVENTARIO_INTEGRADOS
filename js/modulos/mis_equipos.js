@@ -1648,7 +1648,7 @@ function _devolverOntAlmacen(id, etiqueta){
   document.getElementById('tdDevTipo').value = 'ont';
   document.getElementById('tdDevId').value = id;
   document.getElementById('tdDevCantidadWrap').style.display = 'none';
-  const destinoTxt = (sesion.rol==='tecnico'||sesion.rol==='persona') ? `tu municipio (${sesion.sede})` : 'el almacén';
+  const destinoTxt = (sesion.rol==='tecnico'||sesion.rol==='persona') ? `la oficina que te la asignó` : 'el almacén';
   document.getElementById('tdDevSubtitulo').textContent = `${etiqueta} — queda en camino hasta que la confirmen recibida en ${destinoTxt}.`;
   _tdDevLimpiarUsuario();
   document.getElementById('tdDevBuscarUsuario').value = '';
@@ -1659,6 +1659,7 @@ function _devolverOntAlmacen(id, etiqueta){
   _toggleTdDevTransporte();
   _tdDevCargarUsuarios();
   _tdDevPonerDestino(true);
+  if(sesion.rol==='tecnico'||sesion.rol==='persona'){ const bd0=document.getElementById('tdDevDestino'); if(bd0) bd0.textContent='📍 Destino: la oficina que te la asignó.'; }
   document.getElementById('modalTransporteDevolucion').classList.add('open');
   // El destino real es la sede de quien se la asignó, no la sede del técnico
   if(sesion.rol==='tecnico'||sesion.rol==='persona'){
@@ -1666,6 +1667,9 @@ function _devolverOntAlmacen(id, etiqueta){
       .then(r=>r.json()).then(j=>{
         if(j&&j.destino && document.getElementById('tdDevId').value==String(id))
           document.getElementById('tdDevSubtitulo').textContent = `${etiqueta} — queda en camino hasta que la confirmen recibida en ${j.destino}.`;
+        if(j&&j.destino && document.getElementById('tdDevId').value==String(id)){
+          const bd=document.getElementById('tdDevDestino'); if(bd) bd.textContent=`📍 Destino: ${j.destino} (la oficina que te la asignó).`;
+        }
       }).catch(()=>{});
   }
 }
