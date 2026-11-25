@@ -1829,6 +1829,32 @@ if ($method === 'GET' && $action === 'mis_onts_asignadas') {
                    directo al almacén central — un técnico no le
                    reporta al almacén central, le reporta a su oficina.
      - Municipio/superadmin/distribuidor → almacén central directo. */
+if ($method === 'GET' && $action === 'destino_devolver_ont') {
+    // Solo informativo: a qué sede irá la ONT si este técnico/persona la devuelve
+    // (la del que se la asignó; si no se sabe, la sede donde está la ONT).
+    sesionRequerida();
+    $ontId = intval($_GET['ont_id'] ?? 0);
+    $miUsuario = $_SESSION['usuario'] ?? '';
+    $q = $pdo->prepare("SELECT sede_actual FROM ont_seriales WHERE id = ?"); $q->execute([$ontId]);
+    $sedeAct = trim((string)$q->fetchColumn());
+    $destino = '';
+    try {
+        $q = $pdo->prepare("SELECT usuario FROM ont_historial WHERE ont_id = ? AND (evento = 'asignada' OR (evento = 'reasignada' AND detalle LIKE 'Propuesta como instalador%')) AND usuario <> ? ORDER BY id DESC LIMIT 1");
+        $q->execute([$ontId, $miUsuario]); $quien = $q->fetchColumn();
+        if (!$quien) {
+            $q = $pdo->prepare("SELECT enviado_por FROM envios_seguimiento WHERE tipo = 'asignacion' AND referencia_id = ? AND ref_producto LIKE 'ONT::%' AND enviado_por <> ? ORDER BY id DESC LIMIT 1");
+            $q->execute([$ontId, $miUsuario]); $quien = $q->fetchColumn();
+        }
+        if ($quien) {
+            $q = $pdo->prepare("SELECT COALESCE(NULLIF(s.nombre,''), u.sede) FROM usuarios u LEFT JOIN sedes s ON s.id = u.sede_id WHERE u.usuario = ?");
+            $q->execute([$quien]); $destino = trim((string)$q->fetchColumn());
+        }
+    } catch (\Throwable $e) {}
+    if (!$destino) $destino = $sedeAct;
+    if (!$destino) $destino = $_SESSION['sede'] ?? '';
+    responder(['destino' => $destino]);
+}
+
 if ($method === 'POST' && $action === 'devolver_ont_almacen') {
     sesionRequerida();
     $data  = json_decode(file_get_contents('php://input'), true);
