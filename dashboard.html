@@ -2725,7 +2725,11 @@
         <input type="hidden" id="asignarUsuarioValor">
         <div id="asignarUsuarioResultados" style="display:none;position:relative;background:white;border:1.5px solid #E2E8F0;border-radius:10px;margin-top:4px;max-height:160px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,.08);"></div>
       </div>
-      <div><label class="lbl" id="asignarCantidadLabel">Cantidad a asignar</label><input id="cantidadAsignar" type="number" min="1" placeholder="0" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="inp"></div>
+      <div id="asignarRolloWrap" style="display:none;">
+        <label class="lbl">¿Cuáles rollos vas a asignar? <span class="!text-[#94A3B8] !font-normal">(puedes elegir varios)</span></label>
+        <div id="asignarRolloCheckList" style="display:flex;flex-direction:column;gap:2px;border:1.5px solid #E2E8F0;border-radius:10px;padding:6px 10px;background:white;"></div>
+      </div>
+      <div id="asignarCantidadWrap"><label class="lbl" id="asignarCantidadLabel">Cantidad a asignar</label><input id="cantidadAsignar" type="number" min="1" placeholder="0" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="inp"></div>
       <div><label class="lbl">Nota <span class="!text-[#94A3B8] !font-normal">(opcional)</span></label><textarea id="motivoAsignar" placeholder="Ej: Para la instalación de hoy…" rows="2" class="inp"></textarea></div>
     </div>
     <div style="display:flex;gap:10px;margin-top:20px;"><button onclick="cerrarModal('modalAsignar')" class="btn btn-ghost ![flex:1]">Cancelar</button><button onclick="confirmarAsignar()" class="btn ![flex:1] ![background:#B45309] ![color:white]">🤝 Asignar</button></div>
@@ -4391,7 +4395,7 @@
 <script src="js/modulos/base.js?v=11"></script>
 <script src="js/modulos/datos.js?v=32"></script>
 <script src="js/modulos/panel_productos.js?v=14"></script>
-<script src="js/modulos/proveedores.js?v=26"></script>
+<script src="js/modulos/proveedores.js?v=27"></script>
 <script src="js/modulos/solicitudes.js?v=20"></script>
 <script src="js/modulos/historial.js?v=24"></script>
 <script src="js/modulos/usuarios.js?v=6"></script>
