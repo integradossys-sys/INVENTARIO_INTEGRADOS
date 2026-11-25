@@ -1879,7 +1879,7 @@ if ($method === 'POST' && $action === 'devolver_ont_almacen') {
                 $municipioAsigno = $asig2->fetchColumn();
             }
             if ($municipioAsigno) {
-                $sedeMun = $pdo->prepare("SELECT sede, rol FROM usuarios WHERE usuario = ?");
+                $sedeMun = $pdo->prepare("SELECT COALESCE(NULLIF(s.nombre,''), u.sede) AS sede, u.rol FROM usuarios u LEFT JOIN sedes s ON s.id = u.sede_id WHERE u.usuario = ?");
                 $sedeMun->execute([$municipioAsigno]);
                 $rowMun = $sedeMun->fetch();
                 $sedeEncontrada = trim($rowMun['sede'] ?? '');
