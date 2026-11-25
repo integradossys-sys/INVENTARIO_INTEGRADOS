@@ -417,7 +417,7 @@ function _renderAuditoriaPersona(data){
     </label>`;
 
   const filaCantidad = (idx, nombre, ref, esperado, unidad) => {
-    const suf = unidad==='metros'?'mts.':'uds.';
+    const suf = unidad==='metros'?'mts.':(unidad==='rollos'?'rollos':'uds.');
     return `<tr>
       <td class="!p-[9px_12px] !text-[13px]">
         <div class="!font-semibold !text-[#334155]">${esc(nombre)}</div>
@@ -515,7 +515,7 @@ function _exportarAuditoriaExcel(){
   };
 
   (data.productos||[]).forEach(x=>{
-    filas.push(['Producto', x.nombre, `Ref. ${x.ref}`, `${fmtNum(x.cantidad)} ${x.unidad==='metros'?'mts.':'uds.'}`, cantidadReal()]);
+    filas.push(['Producto', x.nombre, `Ref. ${x.ref}`, `${fmtNum(x.cantidad)} ${x.unidad==='metros'?'mts.':(x.unidad==='rollos'?'rollos':'uds.')}`, cantidadReal()]);
   });
   const lblEstado={disponible:'Disponible',despachada:'Despachada',ocupado:'Instalada/en uso',comodato:'Comodato',dañado:'Dañada'};
   (data.onts||[]).forEach(x=>{
