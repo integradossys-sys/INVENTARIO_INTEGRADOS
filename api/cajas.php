@@ -2408,10 +2408,18 @@ if ($method === 'POST' && $action === 'registrar_ont_recogida') {
     if (!$serial && !$mac) responder(['error' => 'Falta el serial o la MAC'], 400);
 
     // Evitar duplicados — si ese serial ya existe, no se crea de nuevo.
+    // Se compara contra el SN real y la MAC (la columna "serial" es antigua y
+    // puede traer datos de otro equipo, por eso ya no se usa para esto).
+    $mac = strtoupper(preg_replace('/[^A-Fa-f0-9]/', '', $mac));
     if ($serial) {
-        $chk = $pdo->prepare("SELECT id FROM ont_seriales WHERE serial = ? OR sn = ?");
-        $chk->execute([$serial, $serial]);
+        $chk = $pdo->prepare("SELECT id FROM ont_seriales WHERE sn = ?");
+        $chk->execute([$serial]);
         if ($chk->fetch()) responder(['error' => 'Ya existe una ONT registrada con ese serial'], 400);
+    }
+    if ($mac) {
+        $chk = $pdo->prepare("SELECT id FROM ont_seriales WHERE mac_fmt = ? OR mac = ?");
+        $chk->execute([$mac, $mac]);
+        if ($chk->fetch()) responder(['error' => 'Ya existe una ONT registrada con esa MAC'], 400);
     }
 
     $estadoFinal = ($estadoElegido === 'dañado') ? 'dañado' : 'disponible';
